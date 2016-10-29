@@ -1,0 +1,5 @@
+<RCC>
+  <qresource prefix="systray">
+    <file>loop-base.svg</file>
+  </qresource>
+</RCC>
