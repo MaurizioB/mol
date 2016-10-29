@@ -42,6 +42,5 @@ will reset the buffer, and MOL will be ready to listen to a new loop).
 Future
 ------
 
--  MIDI control for enabling/disabling/stopping.
 -  MIDI input/output device selection/filtering.
 -  JACK support?

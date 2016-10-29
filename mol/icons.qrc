@@ -1,5 +1,8 @@
 <RCC>
   <qresource prefix="systray">
-    <file>loop-base.svg</file>
+    <file>loop-active.svg</file>
+    <file>loop-disabled.svg</file>
+    <file>loop-enabled.svg</file>
+    <file>loop-play.svg</file>
   </qresource>
 </RCC>
