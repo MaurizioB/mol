@@ -44,10 +44,10 @@ class AlsaMidi(QtCore.QObject):
                                                      type = alsaseq.SEQ_PORT_TYPE_MIDI_GENERIC|alsaseq.SEQ_PORT_TYPE_APPLICATION, 
                                                      caps = alsaseq.SEQ_PORT_CAP_WRITE|alsaseq.SEQ_PORT_CAP_SUBS_WRITE|
                                                      alsaseq.SEQ_PORT_CAP_NO_EXPORT)
-        output_id = self.seq.create_simple_port(name = 'MOL player', 
-                                                     type = alsaseq.SEQ_PORT_TYPE_MIDI_GENERIC|alsaseq.SEQ_PORT_TYPE_APPLICATION, 
-                                                     caps = alsaseq.SEQ_PORT_CAP_READ|alsaseq.SEQ_PORT_CAP_SUBS_READ|
-                                                     alsaseq.SEQ_PORT_CAP_SYNC_READ)
+#        output_id = self.seq.create_simple_port(name = 'MOL player', 
+#                                                     type = alsaseq.SEQ_PORT_TYPE_MIDI_GENERIC|alsaseq.SEQ_PORT_TYPE_APPLICATION, 
+#                                                     caps = alsaseq.SEQ_PORT_CAP_READ|alsaseq.SEQ_PORT_CAP_SUBS_READ|
+#                                                     alsaseq.SEQ_PORT_CAP_SYNC_READ)
         self.seq.connect_ports((alsaseq.SEQ_CLIENT_SYSTEM, alsaseq.SEQ_PORT_SYSTEM_ANNOUNCE), (self.seq.client_id, input_id))
 
 #        self.graph = Graph(self.seq)
@@ -59,7 +59,7 @@ class AlsaMidi(QtCore.QObject):
         self.graph.conn_register.connect(self.conn_register)
         self.id = self.seq.get_client_info()['id']
         self.input = self.graph.port_id_dict[self.id][input_id]
-        self.output = self.graph.port_id_dict[self.id][output_id]
+#        self.output = self.graph.port_id_dict[self.id][output_id]
 
     def run(self):
         self.active = True
@@ -144,7 +144,8 @@ class Looper(QtCore.QObject):
         for client_id, port_dict in self.graph.port_id_dict.items():
             if client_id == 0: continue
             for port_id, port in port_dict.items():
-                if port.is_output and port != self.alsa.output and not alsaseq.SEQ_PORT_CAP_NO_EXPORT in port.caps:
+#                if port.is_output and port != self.alsa.output and not alsaseq.SEQ_PORT_CAP_NO_EXPORT in port.caps:
+                if port.is_output and not alsaseq.SEQ_PORT_CAP_NO_EXPORT in port.caps:
                     try:
                         self.seq.connect_ports(port.addr, self.input.addr)
                     except:
@@ -195,7 +196,7 @@ class Looper(QtCore.QObject):
             return
 #        event.source = self.alsa.output.addr
 #        event.dest = 0xfe, 0xfd
-        print 'sending event {} (src: {}, dest: {})'.format(event.type, event.source, event.dest)
+#        print 'sending event {} (src: {}, dest: {})'.format(event.type, event.source, event.dest)
 #        self.seq.output_event(event)
         self.seq.drain_output()
 
