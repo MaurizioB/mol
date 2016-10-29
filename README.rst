@@ -29,11 +29,11 @@ Usage
 -----
 
 There is not an installation procedure yet, just run the script in the
-main directory:
+main repository directory:
 
 ::
 
-    $ ./mol
+    $ ./moloop
 
 After that, MOL will be in your system tray, from there you can
 enable/disable event listening, quit MOL or stop a playing loop (this

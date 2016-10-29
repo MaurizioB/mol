@@ -161,7 +161,8 @@ class Looper(QtCore.QObject):
     def last_event_timeout(self):
         if self.timer.elapsed()/(10**3) < (self.last_event_limit+self.minimum_time):
 #            self.icon_set()
-            self.event_buffer.disconnect()
+            self.event_buffer.pattern_created.disconnect()
+            self.event_buffer.deleteLater()
             self.event_buffer = MidiBuffer()
             self.event_buffer.pattern_created.connect(self.play)
             return
@@ -177,7 +178,8 @@ class Looper(QtCore.QObject):
             for data in self.pattern:
                 data.play.disconnect()
         self.event_buffer.stop()
-        self.event_buffer.disconnect()
+        self.event_buffer.pattern_created.disconnect()
+        self.event_buffer.deleteLater()
         self.event_buffer = MidiBuffer()
         self.event_buffer.pattern_created.connect(self.play)
 
