@@ -9,6 +9,7 @@ from midiutils import *
 MidiSource = namedtuple('MidiSource', 'client port')
 PatternData = namedtuple('PatternData', 'time vel source')
 
+
 class deque2(deque):
     def __new__(cls, *args):
         return deque.__new__(cls, *args)
@@ -49,7 +50,7 @@ class MidiData(QtCore.QObject):
 
 class MidiBuffer(QtCore.QObject):
     pattern_created = QtCore.pyqtSignal(object)
-    def __init__(self, max_size=64):
+    def __init__(self, max_size=64, trigger_types=(NOTEON, ), time_threshold=100):
         QtCore.QObject.__init__(self)
         self.max_size = max_size
         self.main_data = deque2([], max_size)
@@ -61,7 +62,9 @@ class MidiBuffer(QtCore.QObject):
         self.rev_vel_data = deque2([], max_size)
         self.source_data = []
         self.other_data = []
-        self.main_types = (NOTEON, )
+        self.main_types = trigger_types
+        self.time_threshold = time_threshold
+#        self.ignored_types = ignored_types
         self.lock = Lock()
         self.watch_id = None
         self.pattern = []
@@ -120,14 +123,14 @@ class MidiBuffer(QtCore.QObject):
                             delta1 = last_prev_time-last_next_time
                             pattern_next_time = self.rev_time_data[t+i]
                             delta2 = pattern_prev_time-pattern_next_time
-                            if abs(delta2-delta1) < 100:
+                            if abs(delta2-delta1) < self.time_threshold:
                                 last_prev_time = last_next_time
                             else:
                                 print 'timing non coincide'
                                 break
                             orig_next_time = self.rev_time_data[t+(i*2)]
                             delta3 = orig_prev_time-orig_next_time
-                            if abs(delta3-delta2) < 100:
+                            if abs(delta3-delta2) < self.time_threshold:
                                 pattern_prev_time = pattern_next_time
                                 orig_prev_time = orig_next_time
                             else:

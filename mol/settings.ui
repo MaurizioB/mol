@@ -6,25 +6,15 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>420</width>
-    <height>288</height>
+    <width>519</width>
+    <height>639</height>
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Dialog</string>
+   <string>MOL settings</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
-   <item row="3" column="0">
-    <widget class="QDialogButtonBox" name="buttonBox">
-     <property name="orientation">
-      <enum>Qt::Horizontal</enum>
-     </property>
-     <property name="standardButtons">
-      <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
-     </property>
-    </widget>
-   </item>
-   <item row="2" column="0">
+   <item row="4" column="0">
     <widget class="QGroupBox" name="groupBox_2">
      <property name="title">
       <string>MIDI Control settings</string>
@@ -35,15 +25,21 @@
       </property>
       <item row="2" column="0" colspan="5">
        <widget class="QCheckBox" name="toggle_chk">
+        <property name="toolTip">
+         <string>If enabled, uses the &quot;Enable&quot; event to toggle between enabled and disabled state. If a loop is currently playing, it will be stopped.</string>
+        </property>
         <property name="text">
          <string>Toggle mode</string>
         </property>
        </widget>
       </item>
       <item row="0" column="1" colspan="3">
-       <widget class="QLineEdit" name="auto_connect_edit">
+       <widget class="QLineEdit" name="ctrl_auto_connect_edit">
         <property name="enabled">
          <bool>false</bool>
+        </property>
+        <property name="toolTip">
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Type ports MOL will try to automatically connect to.&lt;br/&gt;The complete format is &lt;span style=&quot; font-weight:600;&quot;&gt;client&lt;/span&gt;:&lt;span style=&quot; font-weight:600;&quot;&gt;port&lt;/span&gt;, wheter as string or as numbers. For example:&lt;/p&gt;&lt;ul style=&quot;margin-top: 0px; margin-bottom: 0px; margin-left: 0px; margin-right: 0px; -qt-list-indent: 1;&quot;&gt;&lt;li style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;USB MIDI interface:USB MIDI Port 1&lt;/li&gt;&lt;li style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;20:0&lt;/li&gt;&lt;/ul&gt;&lt;p&gt;Pattern search works using regular expressions, the string &amp;quot;USB MIDI.*1&amp;quot; will connect to every port with client name beginning with &amp;quot;USB MIDI&amp;quot; and port name ending with &amp;quot;1&amp;quot;.&lt;/p&gt;&lt;p&gt;Multiple ports can be specified, separated by a comma.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
         </property>
        </widget>
       </item>
@@ -249,7 +245,7 @@
        </widget>
       </item>
       <item row="0" column="0">
-       <widget class="QCheckBox" name="auto_connect_chk">
+       <widget class="QCheckBox" name="ctrl_auto_connect_chk">
         <property name="text">
          <string>Auto connect</string>
         </property>
@@ -265,6 +261,16 @@
      </layout>
     </widget>
    </item>
+   <item row="5" column="0">
+    <widget class="QDialogButtonBox" name="buttonBox">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="standardButtons">
+      <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok|QDialogButtonBox::RestoreDefaults</set>
+     </property>
+    </widget>
+   </item>
    <item row="1" column="0">
     <widget class="QGroupBox" name="groupBox">
      <property name="title">
@@ -274,7 +280,7 @@
       <item row="1" column="0">
        <widget class="QLabel" name="label">
         <property name="text">
-         <string>Max seconds before ignoring previous events</string>
+         <string>Maximum number of seconds before ignoring previous events</string>
         </property>
        </widget>
       </item>
@@ -304,11 +310,352 @@
         </property>
        </widget>
       </item>
+      <item row="2" column="0">
+       <widget class="QLabel" name="label_8">
+        <property name="text">
+         <string>Maximum pattern length</string>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="1">
+       <widget class="QSpinBox" name="max_size_spin">
+        <property name="maximumSize">
+         <size>
+          <width>48</width>
+          <height>16777215</height>
+         </size>
+        </property>
+        <property name="minimum">
+         <number>16</number>
+        </property>
+        <property name="maximum">
+         <number>150</number>
+        </property>
+        <property name="value">
+         <number>16</number>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item row="3" column="0">
+    <widget class="QGroupBox" name="groupBox_3">
+     <property name="title">
+      <string>Loop activation</string>
+     </property>
+     <layout class="QGridLayout" name="gridLayout_4">
+      <item row="3" column="0">
+       <widget class="QListView" name="trigger_list">
+        <property name="maximumSize">
+         <size>
+          <width>16777215</width>
+          <height>80</height>
+         </size>
+        </property>
+        <property name="toolTip">
+         <string>These events will be used to trigger a loop.
+It is usually good enough to leave only Note On events, because Note Off events might occur in very different moment, and even overlap with new Note On events.</string>
+        </property>
+        <property name="editTriggers">
+         <set>QAbstractItemView::NoEditTriggers</set>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="1">
+       <layout class="QVBoxLayout" name="verticalLayout">
+        <item>
+         <widget class="QPushButton" name="trigger_add_btn">
+          <property name="minimumSize">
+           <size>
+            <width>20</width>
+            <height>0</height>
+           </size>
+          </property>
+          <property name="text">
+           <string>&lt;</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="trigger_del_btn">
+          <property name="minimumSize">
+           <size>
+            <width>20</width>
+            <height>0</height>
+           </size>
+          </property>
+          <property name="text">
+           <string>&gt;</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <item row="3" column="3">
+       <layout class="QVBoxLayout" name="verticalLayout_2">
+        <item>
+         <widget class="QPushButton" name="record_add_btn">
+          <property name="minimumSize">
+           <size>
+            <width>20</width>
+            <height>0</height>
+           </size>
+          </property>
+          <property name="text">
+           <string>&lt;</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="record_del_btn">
+          <property name="minimumSize">
+           <size>
+            <width>20</width>
+            <height>0</height>
+           </size>
+          </property>
+          <property name="text">
+           <string>&gt;</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <item row="3" column="2">
+       <widget class="QListView" name="record_list">
+        <property name="maximumSize">
+         <size>
+          <width>16777215</width>
+          <height>80</height>
+         </size>
+        </property>
+        <property name="toolTip">
+         <string>Events in this list will be recorded but not used to recognize a repeated pattern.</string>
+        </property>
+        <property name="editTriggers">
+         <set>QAbstractItemView::NoEditTriggers</set>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="0" colspan="5">
+       <layout class="QGridLayout" name="gridLayout_5">
+        <item row="0" column="0">
+         <widget class="QLabel" name="label_12">
+          <property name="text">
+           <string>Time tollerance threshold in milliseconds</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="1">
+         <widget class="QSpinBox" name="time_threshold_spin">
+          <property name="maximumSize">
+           <size>
+            <width>48</width>
+            <height>16777215</height>
+           </size>
+          </property>
+          <property name="minimum">
+           <number>50</number>
+          </property>
+          <property name="maximum">
+           <number>200</number>
+          </property>
+          <property name="singleStep">
+           <number>10</number>
+          </property>
+          <property name="value">
+           <number>100</number>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <item row="2" column="4">
+       <widget class="QLabel" name="label_11">
+        <property name="text">
+         <string>Ignored events</string>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="0">
+       <widget class="QLabel" name="label_9">
+        <property name="text">
+         <string>Triggering events</string>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="2">
+       <widget class="QLabel" name="label_10">
+        <property name="text">
+         <string>Recorded events</string>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="4">
+       <widget class="QListView" name="ignore_list">
+        <property name="maximumSize">
+         <size>
+          <width>16777215</width>
+          <height>80</height>
+         </size>
+        </property>
+        <property name="toolTip">
+         <string>Event types in this list will always be ignored</string>
+        </property>
+        <property name="editTriggers">
+         <set>QAbstractItemView::NoEditTriggers</set>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="0" colspan="5">
+       <widget class="Line" name="line_2">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item row="2" column="0">
+    <widget class="QGroupBox" name="groupBox_4">
+     <property name="title">
+      <string>Input connections</string>
+     </property>
+     <layout class="QGridLayout" name="gridLayout_6">
+      <item row="5" column="0" colspan="4">
+       <widget class="QLabel" name="label_13">
+        <property name="text">
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Warning&lt;/span&gt;: to apply these settings you &lt;span style=&quot; font-weight:600;&quot;&gt;must&lt;/span&gt; restart MOL!&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        </property>
+        <property name="textFormat">
+         <enum>Qt::RichText</enum>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="0">
+       <widget class="QRadioButton" name="auto_connect_all_radio">
+        <property name="text">
+         <string>Any port</string>
+        </property>
+        <attribute name="buttonGroup">
+         <string notr="true">auto_connect_group</string>
+        </attribute>
+       </widget>
+      </item>
+      <item row="1" column="1" rowspan="4">
+       <spacer name="horizontalSpacer">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeType">
+         <enum>QSizePolicy::Fixed</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>20</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item row="1" column="0">
+       <widget class="QRadioButton" name="auto_connect_hw_radio">
+        <property name="text">
+         <string>Hardware ports</string>
+        </property>
+        <property name="checked">
+         <bool>true</bool>
+        </property>
+        <attribute name="buttonGroup">
+         <string notr="true">auto_connect_group</string>
+        </attribute>
+       </widget>
+      </item>
+      <item row="2" column="0">
+       <widget class="QRadioButton" name="auto_connect_sw_radio">
+        <property name="text">
+         <string>Software ports</string>
+        </property>
+        <property name="checked">
+         <bool>false</bool>
+        </property>
+        <attribute name="buttonGroup">
+         <string notr="true">auto_connect_group</string>
+        </attribute>
+       </widget>
+      </item>
+      <item row="4" column="3">
+       <widget class="QPushButton" name="auto_connect_del_btn">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+        <property name="text">
+         <string>-</string>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="3">
+       <widget class="QPushButton" name="auto_connect_add_btn">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+        <property name="text">
+         <string>+</string>
+        </property>
+       </widget>
+      </item>
+      <item row="4" column="0">
+       <widget class="QRadioButton" name="auto_connect_custom_radio">
+        <property name="text">
+         <string>Custom ports</string>
+        </property>
+        <attribute name="buttonGroup">
+         <string notr="true">auto_connect_group</string>
+        </attribute>
+       </widget>
+      </item>
+      <item row="1" column="2" rowspan="4">
+       <widget class="QListView" name="auto_connect_list">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="2">
+       <widget class="QLabel" name="label_14">
+        <property name="text">
+         <string>If custom mode is selected, automatically try to connect to the following ports:</string>
+        </property>
+        <property name="wordWrap">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
      </layout>
     </widget>
    </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>startup_chk</tabstop>
+  <tabstop>last_event_limit_spin</tabstop>
+  <tabstop>max_size_spin</tabstop>
+  <tabstop>ctrl_auto_connect_chk</tabstop>
+  <tabstop>ctrl_auto_connect_edit</tabstop>
+  <tabstop>toggle_chk</tabstop>
+  <tabstop>enable_combo</tabstop>
+  <tabstop>enable_param_spin</tabstop>
+  <tabstop>enable_value_spin</tabstop>
+  <tabstop>disable_combo</tabstop>
+  <tabstop>disable_param_spin</tabstop>
+  <tabstop>disable_value_spin</tabstop>
+  <tabstop>stop_combo</tabstop>
+  <tabstop>stop_param_spin</tabstop>
+  <tabstop>stop_value_spin</tabstop>
+  <tabstop>buttonBox</tabstop>
+ </tabstops>
  <resources>
   <include location="icons.qrc"/>
  </resources>
@@ -346,4 +693,7 @@
    </hints>
   </connection>
  </connections>
+ <buttongroups>
+  <buttongroup name="auto_connect_group"/>
+ </buttongroups>
 </ui>

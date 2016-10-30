@@ -804,6 +804,10 @@ class Port(QtCore.QObject):
     def caps_str(self):
         return [_PortCapsStrings[int(c)] for c in self.caps]
 
+    @property
+    def is_hardware(self):
+        return self.client.is_hardware
+
     def __str__(self):
         return self.name
 
@@ -830,6 +834,10 @@ class Client(QtCore.QObject):
     @property
     def type_str(self):
         return _ClientTypeStrings[int(self.type)]
+
+    @property
+    def is_hardware(self):
+        return True if self.type == alsaseq.SEQ_KERNEL_CLIENT else False
 
     @property
     def name(self):
