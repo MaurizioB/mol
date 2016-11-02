@@ -849,7 +849,7 @@ class Looper(QtCore.QObject):
         self.event_buffer = MidiBuffer(self.max_size*3, self.event_filter_mode[TRIGGER], self.time_threshold)
         self.event_buffer.pattern_created.connect(self.play)
 
-        self.show_settings()
+#        self.show_settings()
 
     def ctrl_connect(self):
         ports = self.ctrl_auto_connect.replace(',', '|')
