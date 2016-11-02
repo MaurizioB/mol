@@ -9,20 +9,20 @@ import icons
 from classes import *
 from midiutils import *
 
-
+version = '0.5'
 clientname = 'MOL'
 
 CONNECT_SW, CONNECT_HW, CONNECT_ALL = range(1, 4)
 
 defaults = {
             'startup_enable': False, 
-            'minimum_time': 2, 
             'last_event_limit': 5, 
-            'stop_events': [(123, 0), (64, 0)], 
+            'stop_events': [('CTRL', 123, 0), ('CTRL', 64, 0)], 
+            'stop_notes': True, 
             'toggle_mode': False, 
-            'enable_event': (0, 32, 0), 
-            'disable_event': (0, 32, 1), 
-            'stop_event': (1, 32, 127), 
+            'ctrl_enable_event': (0, 32, 0), 
+            'ctrl_disable_event': (0, 32, 1), 
+            'ctrl_stop_event': (0, 32, 127), 
             'max_size': 16, 
             'time_threshold': 100, 
             'auto_connect': CONNECT_HW, 
@@ -61,15 +61,6 @@ _event_to_id = {
 DISABLED, ENABLED, ACTIVE, PLAY = range(4)
 IGNORE, RECORD, TRIGGER = range(-1, 2)
 
-EventRole = QtCore.Qt.UserRole + 1
-DefaultRole = EventRole + 1
-TriggerRole = DefaultRole + 1
-RecordRole = TriggerRole + 1
-IgnoreRole = RecordRole + 1
-
-NameRole = QtCore.Qt.UserRole + 10
-ClientRole = NameRole + 1
-PortRole = ClientRole + 1
 
 def _load_ui(widget, ui_path):
     return uic.loadUi(path.join(path.dirname(path.abspath(__file__)), ui_path), widget)
@@ -121,6 +112,11 @@ class AlsaMidi(QtCore.QObject):
 #                                                     type = alsaseq.SEQ_PORT_TYPE_MIDI_GENERIC|alsaseq.SEQ_PORT_TYPE_APPLICATION, 
 #                                                     caps = alsaseq.SEQ_PORT_CAP_READ|alsaseq.SEQ_PORT_CAP_SUBS_READ|
 #                                                     alsaseq.SEQ_PORT_CAP_SYNC_READ)
+        feedback_id = self.seq.create_simple_port(name = 'MOL feedback', 
+                                                     type = alsaseq.SEQ_PORT_TYPE_MIDI_GENERIC|alsaseq.SEQ_PORT_TYPE_APPLICATION, 
+                                                     caps = alsaseq.SEQ_PORT_CAP_READ|alsaseq.SEQ_PORT_CAP_SUBS_READ|
+                                                     alsaseq.SEQ_PORT_CAP_SYNC_READ)
+
         self.seq.connect_ports((alsaseq.SEQ_CLIENT_SYSTEM, alsaseq.SEQ_PORT_SYSTEM_ANNOUNCE), (self.seq.client_id, input_id))
 
 #        self.graph = Graph(self.seq)
@@ -133,6 +129,7 @@ class AlsaMidi(QtCore.QObject):
         self.id = self.seq.get_client_info()['id']
         self.input = self.graph.port_id_dict[self.id][input_id]
         self.control = self.graph.port_id_dict[self.id][control_id] if not single_input else None
+        self.feedback = self.graph.port_id_dict[self.id][feedback_id]
 #        self.output = self.graph.port_id_dict[self.id][output_id]
 
     def run(self):
@@ -173,8 +170,14 @@ class AlsaMidi(QtCore.QObject):
         print 'stopped'
         self.stopped.emit()
 
+class AboutDialog(QtGui.QDialog):
+    def __init__(self, main):
+        QtGui.QDialog.__init__(self, parent=None)
+        _load_ui(self, 'about.ui')
+        self.setFixedSize(self.width(), self.height())
+        self.version_lbl.setText('Version: {}'.format(version))
 
-class AutoConnectInput(QtGui.QDialog):
+class PortFilterDialog(QtGui.QDialog):
     def __init__(self, main):
         QtGui.QDialog.__init__(self, parent=None)
         _load_ui(self, 'auto_connect_add.ui')
@@ -236,8 +239,164 @@ class AutoConnectInput(QtGui.QDialog):
             return None
         return self.input_edit.text()
 
+class SysExEditor(QtGui.QLineEdit):
+    def __init__(self, parent, sysex=None):
+        QtGui.QLineEdit.__init__(self, parent)
+#        self.valid_fg = self.palette()
+#        self.invalid_fg = self.palette().setColor(QtGui.QPalette.Foreground, QtCore.Qt.red)
+        self.valid = False
+        self.textChanged.connect(self.check)
+        self.valid = sysex
+        if isinstance(sysex, str):
+            try:
+                self.sysex = map(int, sysex)
+            except:
+                self.sysex = []
+        else:
+            self.sysex = sysex
+        self.setText(' '.join(['{:02X}'.format(v) for v in self.sysex]))
+
+    def set_fg(self, valid=True):
+        if valid:
+            self.setStyleSheet('')
+        else:
+            self.setStyleSheet('color: red;')
+
+    def check(self, text):
+        text = str(text)
+        text.replace(',', ' ')
+        text = re.sub(' +', ' ', text)
+        if set('abcdef')&set(text.lower()):
+            try:
+                sysex = map(lambda v: int(v, 16), text.split())
+            except:
+                self.set_fg(False)
+                return
+        else:
+            try:
+                sysex = map(int, text.split())
+            except:
+                self.set_fg(False)
+                return
+        if not sysex or sysex[0] != 240 or sysex[-1] != 247 or any([v for v in sysex[1:-1] if v>127]):
+            self.set_fg(False)
+            return
+        self.valid = ' '.join(['{:02X}'.format(v) for v in sysex])
+        self.sysex = sysex
+        self.set_fg()
+
 
 class SettingsDialog(QtGui.QDialog):
+    class EventTypeDelegate(QtGui.QStyledItemDelegate):
+        def __init__(self, parent=None):
+            QtGui.QStyledItemDelegate.__init__(self, parent)
+            self.closeEditor.connect(self.set_data)
+
+        def createEditor(self, parent, option, index):
+            self.table = parent.parent()
+            self.index = index
+            combo = QtGui.QComboBox(parent)
+            model = QtGui.QStandardItemModel()
+            [model.appendRow(item.clone()) for item in event_model]
+            combo.setModel(model)
+            combo.setCurrentIndex(index.data(EventIdRole).toPyObject())
+            combo.activated.connect(lambda i: parent.setFocus())
+            return combo
+
+        def set_data(self, widget, hint):
+            model = self.index.model()
+            ev_type = widget.model().item(widget.currentIndex()).data(EventRole)
+            if self.index.data(EventRole) == ev_type:
+                return
+            item = model.itemFromIndex(self.index)
+            item.setData(ev_type, EventRole)
+            item.setData(widget.model().item(widget.currentIndex()).data(EventIdRole), EventIdRole)
+            ev_type = ev_type.toPyObject()
+            id = model.index(self.index.row(), 2).data(IdRole).toPyObject()
+            param_item = model.itemFromIndex(model.index(self.index.row(), 2))
+            if ev_type == SYSEX:
+                sysex = param_item.data(SysExRole).toPyObject()
+                if sysex:
+                    param_item.setText(' '.join(['{:02X}'.format(v) for v in sysex]))
+                else:
+                    param_item.setText('F0 00 00 00 00 F7')
+                    param_item.setData([240, 0, 0, 0, 0, 247], SysExRole)
+                chan_item = model.itemFromIndex(model.index(self.index.row(), 1))
+                chan_item.setText('')
+                chan_item.setEnabled(False)
+                value_item = model.itemFromIndex(model.index(self.index.row(), 3))
+                value_item.setText('')
+                value_item.setEnabled(False)
+                return
+            if ev_type == CTRL:
+                param_item.setText('{} - {}'.format(id, Controllers[id]))
+            else:
+                param_item.setText('{} - {}'.format(id, NoteNames[id].title()))
+            chan_item = model.itemFromIndex(model.index(self.index.row(), 1))
+            chan_item.setEnabled(True)
+            if not chan_item.text():
+                channel = chan_item.data(IdRole).toPyObject()
+                chan_item.setText(str(channel+1) if channel >= 0 else 'All')
+            value_item = model.itemFromIndex(model.index(self.index.row(), 3))
+            value_item.setEnabled(True)
+            if not value_item.text():
+                value_item.setText(str(value_item.data(IdRole).toPyObject()))
+
+
+    class ValueDelegate(QtGui.QStyledItemDelegate):
+        def __init__(self, parent=None, all_channels=False):
+            QtGui.QStyledItemDelegate.__init__(self, parent)
+            self.all_channels = all_channels
+            self.closeEditor.connect(self.set_data)
+
+        def createEditor(self, parent, option, index):
+            self.index = index
+            if index.column() == 2:
+                model = index.model()
+                ev_type = model.itemFromIndex(model.index(self.index.row(), 0)).data(EventRole).toPyObject()
+                if ev_type == SYSEX:
+                    lineedit = SysExEditor(parent, index.data(SysExRole).toPyObject())
+#                    lineedit.setText(index.data(SysExRole).toPyObject())
+                    return lineedit
+                combo = QtGui.QComboBox(parent)
+                if ev_type == CTRL:
+                    combo.addItems(['{} - {}'.format(id, Controllers[id]) for id in sorted(Controllers.keys())])
+                elif ev_type in [NOTEON, NOTEOFF]:
+                    combo.addItems(['{} - {}'.format(id, NoteNames[id].title()) for id in sorted(NoteNames.keys())])
+                combo.setCurrentIndex(index.data(EventIdRole).toPyObject())
+                combo.activated.connect(lambda i: parent.setFocus())
+                return combo
+            spin = QtGui.QSpinBox(parent)
+            spin.wheelEvent = lambda event: spin.stepBy(-spin.singleStep() if event.delta() > 0 else spin.singleStep())
+            if index.column() == 1:
+                if not self.all_channels:
+                    spin.setMinimum(1)
+                else:
+                    spin.setMinimum(0)
+                    spin.setSpecialValueText('All')
+                spin.setMaximum(16)
+                spin.setValue(index.data(IdRole).toPyObject()+1)
+            else:
+                spin.setMinimum(0)
+                spin.setMaximum(127)
+            return spin
+
+        def set_data(self, widget, hint):
+            if isinstance(widget, QtGui.QComboBox):
+                self.index.model().itemFromIndex(self.index).setData(widget.currentIndex(), IdRole)
+            elif isinstance(widget, QtGui.QSpinBox):
+                if self.index.column() == 1:
+                    self.index.model().itemFromIndex(self.index).setData(widget.value()-1, IdRole)
+                    if widget.value() == 0:
+                        self.index.model().itemFromIndex(self.index).setText('All')
+                else:
+                    self.index.model().itemFromIndex(self.index).setData(widget.value(), IdRole)
+            else:
+                item = self.index.model().itemFromIndex(self.index)
+                item.setText(widget.valid)
+                item.setData(widget.sysex, SysExRole)
+
+
     def __init__(self, main):
         QtGui.QDialog.__init__(self, parent=None)
         _load_ui(self, 'settings.ui')
@@ -246,6 +405,7 @@ class SettingsDialog(QtGui.QDialog):
         self.startup_chk.setChecked(self.settings.value('startup_enable', defaults['startup_enable']).toBool())
         self.last_event_limit_spin.setValue(self.main.last_event_limit)
         self.max_size_spin.setValue(self.main.max_size)
+
         self.auto_connect = self.main.auto_connect
         auto_connect_btns = [self.auto_connect_custom_radio, self.auto_connect_sw_radio, self.auto_connect_hw_radio, self.auto_connect_all_radio]
         for i, radio in enumerate(auto_connect_btns):
@@ -253,7 +413,6 @@ class SettingsDialog(QtGui.QDialog):
             radio.toggled.connect(self.auto_connect_enable)
         self.auto_connect_model = QtGui.QStandardItemModel()
         self.auto_connect_list.setModel(self.auto_connect_model)
-        print 'auto_connect {}'.format(self.auto_connect)
         if isinstance(self.auto_connect, int):
             self.auto_connect_group.button(self.auto_connect).setChecked(True)
         else:
@@ -261,41 +420,173 @@ class SettingsDialog(QtGui.QDialog):
             for input in self.auto_connect:
                 item = QtGui.QStandardItem(input)
                 self.auto_connect_model.appendRow(item)
+        self.auto_connect_add_btn.clicked.connect(self.auto_connect_add)
+        self.auto_connect_del_btn.clicked.connect(self.auto_connect_del)
+
+        self.blacklist = self.main.blacklist
+        self.blacklist_model = QtGui.QStandardItemModel()
+        self.blacklist_list.setModel(self.blacklist_model)
+        for input in self.blacklist:
+            item = QtGui.QStandardItem(input)
+            self.blacklist_model.appendRow(item)
+        self.blacklist_add_btn.clicked.connect(self.blacklist_add)
+        self.blacklist_del_btn.clicked.connect(self.blacklist_del)
 
         self.time_threshold_spin.setValue(self.main.time_threshold)
         self.event_filter = self.main.event_filter
         self.create_event_types()
-
-        self.ctrl_auto_connect_chk.toggled.connect(
-                           lambda state: self.ctrl_auto_connect_edit.setEnabled(state if self.ctrl_auto_connect_chk.isEnabled() else False)
-                           )
-        if self.main.ctrl_auto_connect:
-            self.ctrl_auto_connect_edit.setText(self.main.ctrl_auto_connect)
-            self.ctrl_auto_connect_chk.setChecked(True)
-        self.toggle_chk.setChecked(self.main.toggle_mode)
-        self.enable_combo.setCurrentIndex(self.main.enable_event[0])
-        self.enable_param_spin.setValue(self.main.enable_event[1])
-        self.enable_value_spin.setValue(self.main.enable_event[2])
-        self.disable_combo.setCurrentIndex(self.main.enable_event[0])
-        self.disable_param_spin.setValue(self.main.disable_event[1])
-        self.disable_value_spin.setValue(self.main.disable_event[2])
-        self.stop_combo.setCurrentIndex(self.main.stop_event[0])
-        self.stop_param_spin.setValue(self.main.stop_event[1])
-        self.stop_value_spin.setValue(self.main.stop_event[2])
-        self.toggle_chk.toggled.connect(lambda state: [
-                                                       self.disable_combo.setEnabled(not state), 
-                                                       self.disable_param_spin.setEnabled(not state), 
-                                                       self.disable_value_spin.setEnabled(not state)
-                                                       ])
-        self.toggle_chk.toggled.emit(self.toggle_chk.isChecked())
-
-        self.auto_connect_add_btn.clicked.connect(self.auto_connect_add)
-        self.auto_connect_del_btn.clicked.connect(self.auto_connect_del)
         self.trigger_add_btn.clicked.connect(self.add_trigger)
         self.trigger_del_btn.clicked.connect(self.del_trigger)
         self.record_add_btn.clicked.connect(self.add_record)
         self.record_del_btn.clicked.connect(self.del_record)
+
+        self.stop_notes_chk.setChecked(self.main.stop_notes)
+
+        self.ctrl_auto_connect_chk.toggled.connect(
+                           lambda state: self.ctrl_auto_connect_edit.setEnabled(state if self.ctrl_auto_connect_chk.isEnabled() else False)
+                           )
+        if self.main.ctrl_auto_connect is not None:
+            self.ctrl_auto_connect_edit.setText(self.main.ctrl_auto_connect)
+            self.ctrl_auto_connect_chk.setChecked(True)
+        self.toggle_mode_chk.setChecked(self.main.toggle_mode)
+        self.enable_combo.setCurrentIndex(self.main.ctrl_enable_event.event_type)
+        self.enable_param_spin.setValue(self.main.ctrl_enable_event.param)
+        self.enable_value_spin.setValue(self.main.ctrl_enable_event.value)
+        self.enable_chan_spin.setValue(self.main.ctrl_enable_event.channel+1)
+        self.disable_combo.setCurrentIndex(self.main.ctrl_enable_event.event_type)
+        self.disable_param_spin.setValue(self.main.ctrl_disable_event.param)
+        self.disable_value_spin.setValue(self.main.ctrl_disable_event.value)
+        self.disable_chan_spin.setValue(self.main.ctrl_disable_event.channel+1)
+        self.stop_combo.setCurrentIndex(self.main.ctrl_stop_event.event_type)
+        self.stop_param_spin.setValue(self.main.ctrl_stop_event.param)
+        self.stop_value_spin.setValue(self.main.ctrl_stop_event.value)
+        self.stop_chan_spin.setValue(self.main.ctrl_stop_event.channel+1)
+        self.toggle_mode_chk.toggled.connect(lambda state: [
+                                                       self.disable_combo.setEnabled(not state), 
+                                                       self.disable_param_spin.setEnabled(not state), 
+                                                       self.disable_value_spin.setEnabled(not state), 
+                                                       self.disable_chan_spin.setEnabled(not state), 
+                                                       self.toggle_pairing(force=state), 
+                                                       ])
+        self.enable_combo.currentIndexChanged.connect(self.toggle_pairing)
+        self.enable_param_spin.valueChanged.connect(self.toggle_pairing)
+        self.enable_value_spin.valueChanged.connect(self.toggle_pairing)
+        self.enable_chan_spin.valueChanged.connect(self.toggle_pairing)
+        self.toggle_mode_chk.toggled.emit(self.toggle_mode_chk.isChecked())
+
+        self.stop_events_model = QtGui.QStandardItemModel(self)
+        self.stop_events_model.setHorizontalHeaderLabels(['Event type', 'Channel', 'Parameter', 'Value'])
+        for ev_type, data1, data2, chan in self.main.stop_events_raw:
+            ev_type = eval(ev_type)
+            ev_item = event_model_dict[ev_type].clone()
+            if ev_type == SYSEX:
+                chan_item = QtGui.QStandardItem()
+                chan_item.setData(0, IdRole)
+                chan_item.setEnabled(False)
+                data1_item = QtGui.QStandardItem(' '.join(['{:02X}'.format(v) for v in data1]))
+                data1_item.setData(0, IdRole)
+                data1_item.setData(data1, SysExRole)
+                data2_item = QtGui.QStandardItem()
+                data2_item.setData(0, IdRole)
+                data2_item.setEnabled(False)
+            else:
+                chan_item = QtGui.QStandardItem('{}'.format(chan+1 if chan >= 0 else 'All'))
+                chan_item.setData(chan, IdRole)
+                data1_item = QtGui.QStandardItem('{} - {}'.format(data1, Controllers[data1] if ev_type==CTRL else NoteNames[data1].title()))
+                data1_item.setData(data1, IdRole)
+                data2_item = QtGui.QStandardItem(str(data2))
+                data2_item.setData(data2, IdRole)
+            self.stop_events_model.appendRow([ev_item, chan_item, data1_item, data2_item])
+        self.stop_events_table.setModel(self.stop_events_model)
+        self.stop_events_table.resizeColumnsToContents()
+        self.stop_events_table.horizontalHeader().setResizeMode(0, QtGui.QHeaderView.Stretch)
+        self.stop_events_table.resizeColumnToContents(1)
+        self.stop_events_table.horizontalHeader().setResizeMode(2, QtGui.QHeaderView.Stretch)
+        self.stop_events_table.verticalHeader().setResizeMode(QtGui.QHeaderView.ResizeToContents)
+        self.stop_events_table.setItemDelegateForColumn(0, self.EventTypeDelegate(self))
+        self.stop_events_table.setItemDelegateForColumn(1, self.ValueDelegate(self, True))
+        self.stop_events_table.setItemDelegateForColumn(2, self.ValueDelegate(self))
+        self.stop_events_table.setItemDelegateForColumn(3, self.ValueDelegate(self))
+
+        self.stop_events_up_btn.clicked.connect(lambda state, table=self.stop_events_table: self.fb_up(table))
+        self.stop_events_down_btn.clicked.connect(lambda state, table=self.stop_events_table: self.fb_down(table))
+        self.stop_events_add_btn.clicked.connect(lambda state, table=self.stop_events_table: self.fb_add(table))
+        self.stop_events_del_btn.clicked.connect(lambda state, table=self.stop_events_table: self.fb_del(table))
+
+
+        self.fb_auto_connect_chk.toggled.connect(lambda state: self.fb_auto_connect_edit.setEnabled(state))
+        if self.main.fb_auto_connect is not None:
+            self.fb_auto_connect_edit.setText(self.main.fb_auto_connect)
+            self.fb_auto_connect_chk.setChecked(True)
+        for action in ['enable', 'disable', 'stop', 'play']:
+            for widget in ['up_btn', 'down_btn', 'table', 'add_btn', 'del_btn']:
+                globals()[widget] = getattr(self, 'fb_{}_{}'.format(action, widget))
+            model = QtGui.QStandardItemModel(self)
+            model.setHorizontalHeaderLabels(['Event type', 'Channel', 'Parameter', 'Value'])
+            action_list = getattr(self.main, 'fb_{}_events'.format(action))
+            for ev_type, chan, data1, data2 in action_list:
+                ev_type = eval(ev_type)
+                ev_item = event_model_dict[ev_type].clone()
+                if ev_type == SYSEX:
+                    chan_item = QtGui.QStandardItem()
+                    chan_item.setData(0, IdRole)
+                    chan_item.setEnabled(False)
+                    data1_item = QtGui.QStandardItem(' '.join(['{:02X}'.format(v) for v in data1]))
+                    data1_item.setData(0, IdRole)
+                    data1_item.setData(data1, SysExRole)
+                    data2_item = QtGui.QStandardItem()
+                    data2_item.setData(0, IdRole)
+                    data2_item.setEnabled(False)
+                else:
+                    chan_item = QtGui.QStandardItem('{}'.format(chan+1))
+                    chan_item.setData(chan, IdRole)
+                    data1_item = QtGui.QStandardItem('{} - {}'.format(data1, Controllers[data1] if ev_type==CTRL else NoteNames[data1].title()))
+                    data1_item.setData(data1, IdRole)
+                    data2_item = QtGui.QStandardItem(str(data2))
+                    data2_item.setData(data2, IdRole)
+                model.appendRow([ev_item, chan_item, data1_item, data2_item])
+            setattr(self, 'fb_{}_model', model)
+            table.setModel(model)
+            table.resizeColumnsToContents()
+            table.horizontalHeader().setResizeMode(0, QtGui.QHeaderView.Stretch)
+            table.resizeColumnToContents(1)
+            table.horizontalHeader().setResizeMode(2, QtGui.QHeaderView.Stretch)
+            table.verticalHeader().setResizeMode(QtGui.QHeaderView.ResizeToContents)
+            table.setItemDelegateForColumn(0, self.EventTypeDelegate(self))
+            table.setItemDelegateForColumn(1, self.ValueDelegate(self))
+            table.setItemDelegateForColumn(2, self.ValueDelegate(self))
+            table.setItemDelegateForColumn(3, self.ValueDelegate(self))
+
+            up_btn.clicked.connect(lambda state, table=table: self.fb_up(table))
+            down_btn.clicked.connect(lambda state, table=table: self.fb_down(table))
+            add_btn.clicked.connect(lambda state, table=table: self.fb_add(table))
+            del_btn.clicked.connect(lambda state, table=table: self.fb_del(table))
+
         self.buttonBox.button(QtGui.QDialogButtonBox.RestoreDefaults).clicked.connect(self.restore)
+        self.buttonBox.button(QtGui.QDialogButtonBox.Ok).clicked.disconnect()
+        self.buttonBox.button(QtGui.QDialogButtonBox.Ok).clicked.connect(self.value_check)
+
+    def value_check(self):
+        def append_tuple(event):
+            if event.channel != 0:
+                ctrl_list.append(tuple(event))
+            else:
+                for c in range(16):
+                    ctrl_list.append((event.event_type, event.param, event.value, c))
+        ctrl_list = []
+        ctrl_enable_event = RemoteCtrlEvent(self.enable_combo.currentIndex(), self.enable_param_spin.value(), self.enable_value_spin.value(), self.enable_chan_spin.value())
+        ctrl_disable_event = RemoteCtrlEvent(self.disable_combo.currentIndex(), self.disable_param_spin.value(), self.disable_value_spin.value(), self.disable_chan_spin.value())
+        ctrl_stop_event = RemoteCtrlEvent(self.stop_combo.currentIndex(), self.stop_param_spin.value(), self.stop_value_spin.value(), self.stop_chan_spin.value())
+        append_tuple(ctrl_enable_event)
+        append_tuple(ctrl_stop_event)
+        if not self.toggle_mode_chk.isChecked(): append_tuple(ctrl_disable_event)
+
+        if len(ctrl_list) != len(set(ctrl_list)):
+            QtGui.QMessageBox.critical(self, 'Control events conflict', 
+                                       'Remote control events are conflicting, check for similar events or "Any" channel values', 
+                                       )
+            return
+        self.accept()
 
     def restore(self):
         res = QtGui.QMessageBox.question(self, 'Restore to defaults', 
@@ -318,11 +609,11 @@ class SettingsDialog(QtGui.QDialog):
                 model.appendRow(event_dict[ev_type])
         self.ctrl_auto_connect_edit.setText('')
         self.ctrl_auto_connect_chk.setChecked(False)
-        self.toggle_chk.setChecked(defaults['toggle_mode'])
+        self.toggle_mode_chk.setChecked(defaults['toggle_mode'])
         conv_dict = {
-                     'enable_event': (self.enable_combo, self.enable_param_spin, self.enable_value_spin), 
-                     'disable_event': (self.disable_combo, self.disable_param_spin, self.disable_value_spin), 
-                     'stop_event': (self.stop_combo, self.stop_param_spin, self.stop_value_spin), 
+                     'ctrl_enable_event': (self.enable_combo, self.enable_param_spin, self.enable_value_spin), 
+                     'ctrl_disable_event': (self.disable_combo, self.disable_param_spin, self.disable_value_spin), 
+                     'ctrl_stop_event': (self.stop_combo, self.stop_param_spin, self.stop_value_spin), 
                      }
         for d, (combo, param, value) in conv_dict.items():
             t, p, v = defaults[d]
@@ -348,6 +639,25 @@ class SettingsDialog(QtGui.QDialog):
             item.setData(True if ev_type in record_allowed else False, RecordRole)
             view_dict[self.event_filter[ev_type]].appendRow(item)
 
+    def toggle_pairing(self, value=None, force=False):
+        if not force and not self.toggle_mode_chk.isChecked(): return
+        self.disable_combo.setCurrentIndex(self.enable_combo.currentIndex())
+        self.disable_param_spin.setValue(self.enable_param_spin.value())
+        self.disable_value_spin.setValue(self.enable_value_spin.value())
+        self.disable_chan_spin.setValue(self.enable_chan_spin.value())
+
+    def blacklist_add(self):
+        dialog = PortFilterDialog(self)
+        res = dialog.exec_()
+        if res:
+            item = QtGui.QStandardItem(res)
+            self.blacklist_model.appendRow(item)
+
+    def blacklist_del(self):
+        current = self.blacklist_list.currentIndex()
+        if current.row() < 0: return
+        self.blacklist_model.takeRow(current.row())
+
     def auto_connect_enable(self, state):
         if not state: return
         if self.auto_connect_group.checkedId() != 0:
@@ -361,7 +671,7 @@ class SettingsDialog(QtGui.QDialog):
         self.auto_connect_list.setEnabled(enable)
 
     def auto_connect_add(self):
-        dialog = AutoConnectInput(self)
+        dialog = PortFilterDialog(self)
         res = dialog.exec_()
         if res:
             item = QtGui.QStandardItem(res)
@@ -410,6 +720,42 @@ class SettingsDialog(QtGui.QDialog):
         item = self.record_model.takeRow(current.row())
         self.ignore_model.appendRow(item)
 
+
+    def fb_up(self, table):
+        current = table.currentIndex()
+        if current.row() < 1: return
+        model = table.model()
+        row = model.takeRow(current.row())
+        model.insertRow(current.row()-1, row)
+        table.setCurrentIndex(model.index(current.row()-1, current.column()))
+
+    def fb_down(self, table):
+        current = table.currentIndex()
+        if current.row() >= current.model().rowCount()-1: return
+        model = table.model()
+        row = model.takeRow(current.row())
+        model.insertRow(current.row()+1, row)
+        table.setCurrentIndex(model.index(current.row()+1, current.column()))
+
+    def fb_add(self, table):
+        if table.model().rowCount() > 8:
+            QtGui.QMessageBox.question(self, 'Too many events', 'Too many events to send, are you crazy???')
+            return
+        ev_type = event_model[0].clone()
+        chan = QtGui.QStandardItem('1')
+        chan.setData(0, IdRole)
+        param = QtGui.QStandardItem('{} - {}'.format(0, Controllers[0]))
+        param.setData(0, IdRole)
+        value = QtGui.QStandardItem('0')
+        value.setData(0, IdRole)
+        table.model().appendRow([ev_type, chan, param, value])
+
+    def fb_del(self, table):
+        current = table.currentIndex()
+        if current.row() < 0: return
+        table.model().takeRow(current.row())
+
+
 class Looper(QtCore.QObject):
     icon_states = {
                    DISABLED: QtGui.QIcon(':/systray/loop-disabled.svg'), 
@@ -424,10 +770,9 @@ class Looper(QtCore.QObject):
         self.enabled = self.settings.value('startup_enable', defaults['startup_enable']).toBool()
         self.last_event_limit = int(self.settings.value('last_event_limit', defaults['last_event_limit']).toPyObject())
         self.max_size = int(self.settings.value('max_size', defaults['max_size']).toPyObject())
+#        self.minimum_time = self.settings.value('minimum_time', defaults['minimum_time']).toPyObject()
 
-        #questo serve davvero?
-        self.minimum_time = self.settings.value('minimum_time', defaults['minimum_time']).toPyObject()
-
+        self.blacklist = self.settings.value('blacklist', []).toPyObject()
         self.auto_connect = self.settings.value('auto_connect', defaults['auto_connect']).toPyObject()
         if isinstance(self.auto_connect, QtCore.QString):
             self.auto_connect = str(self.auto_connect)
@@ -448,17 +793,26 @@ class Looper(QtCore.QObject):
         self.event_filter = {ev:dest for dest, ev_tuple in self.event_filter_mode.items() for ev in ev_tuple}
         self.ignore_list = self.event_filter_mode[IGNORE]
 
-        self.ctrl_auto_connect = str(self.settings.value('ctrl_auto_connect', 'Virtual').toPyObject())
+        self.stop_notes = self.settings.value('stop_notes', defaults['stop_notes']).toBool()
+        self.create_stop_events(self.settings.value('stop_events', defaults['stop_events']).toPyObject())
+
+        self.ctrl_auto_connect = str(self.settings.value('ctrl_auto_connect').toPyObject())
         self.toggle_mode = self.settings.value('toggle_mode', defaults['toggle_mode']).toBool()
-        self.enable_event = self.settings.value('enable_event', defaults['enable_event']).toPyObject()
-        self.disable_event = self.settings.value('disable_event', defaults['disable_event']).toPyObject()
-        self.stop_event = self.settings.value('stop_event', defaults['stop_event']).toPyObject()
+        self.ctrl_enable_event = RemoteCtrlEvent(*self.settings.value('ctrl_enable_event', defaults['ctrl_enable_event']).toPyObject())
+        self.ctrl_disable_event = RemoteCtrlEvent(*self.settings.value('ctrl_disable_event', defaults['ctrl_disable_event']).toPyObject())
+        self.ctrl_stop_event = RemoteCtrlEvent(*self.settings.value('ctrl_stop_event', defaults['ctrl_stop_event']).toPyObject())
         self.create_ctrl_events()
+
+        self.fb_auto_connect = str(self.settings.value('fb_auto_connect').toPyObject())
+        self.fb_enable_events = self.settings.value('fb_enable_events', []).toPyObject()
+        self.fb_disable_events = self.settings.value('fb_disable_events', []).toPyObject()
+        self.fb_stop_events = self.settings.value('fb_stop_events', []).toPyObject()
+        self.fb_play_events = self.settings.value('fb_play_events', []).toPyObject()
 
         self.pattern = None
 
         self.alsa_thread = QtCore.QThread()
-        self.alsa = AlsaMidi(self, self.single_input)
+        self.alsa = AlsaMidi(self, single_input=self.single_input)
         self.alsa.moveToThread(self.alsa_thread)
         self.alsa.stopped.connect(self.alsa_thread.quit)
         self.alsa_thread.started.connect(self.alsa.run)
@@ -469,10 +823,13 @@ class Looper(QtCore.QObject):
         self.seq = self.alsa.seq
         self.input = self.alsa.input
         self.control = self.alsa.control
+        self.feedback = self.alsa.feedback
 
         self.port_discovery()
         if not self.single_input:
-            self.connect_control()
+            self.ctrl_connect()
+        if self.fb_auto_connect:
+            self.fb_connect()
 
         self.trayicon = QtGui.QSystemTrayIcon(self.icon_states[ENABLED if self.enabled else DISABLED], parent)
         self.trayicon.show()
@@ -482,7 +839,7 @@ class Looper(QtCore.QObject):
         self.last_event_timer = QtCore.QTimer()
         self.last_event_timer.setInterval(self.last_event_limit*1000)
         self.last_event_timer.setSingleShot(True)
-        self.last_event_timer.timeout.connect(self.last_event_timeout)
+        self.last_event_timer.timeout.connect(self.clear_buffer)
 
         self.icon_timer = QtCore.QTimer()
         self.icon_timer.setInterval(200)
@@ -492,7 +849,9 @@ class Looper(QtCore.QObject):
         self.event_buffer = MidiBuffer(self.max_size*3, self.event_filter_mode[TRIGGER], self.time_threshold)
         self.event_buffer.pattern_created.connect(self.play)
 
-    def connect_control(self):
+        self.show_settings()
+
+    def ctrl_connect(self):
         ports = self.ctrl_auto_connect.replace(',', '|')
         if not ports: return
         ports_re = re.compile(ports)
@@ -508,23 +867,77 @@ class Looper(QtCore.QObject):
             if check is not None:
                 try:
                     port_map = map(int, addr)
-                    self.seq.connect_ports(port_map, self.alsa.control.addr)
+                    self.seq.connect_ports(port_map, self.control.addr)
                 except Exception as err:
                     print err
                     print 'error trying to connect to address {}:{}'.format(*port_map)
 
+    def fb_connect(self):
+        ports = self.fb_auto_connect.replace(',', '|')
+        if not ports: return
+        ports_re = re.compile(ports)
+        graph_dict = {}
+        for c, ports in self.graph.port_id_dict.items():
+            for p, port in ports.items():
+                if not port.is_input: continue
+                graph_dict['{}:{}'.format(self.graph.client_id_dict[c].name, port.name)] = (c, p)
+                graph_dict['{}:{}'.format(c, p)] = (c, p)
+
+        for port, addr in graph_dict.items():
+            check = ports_re.match(port)
+            if check is not None:
+                try:
+                    port_map = map(int, addr)
+                    self.seq.connect_ports(self.feedback.addr, port_map)
+                except Exception as err:
+                    print err
+                    print 'error trying to connect to address {}:{}'.format(*port_map)
+
+    def create_stop_events(self, stop_events):
+        self.stop_events = []
+        self.stop_events_raw = []
+        for event in stop_events:
+            event_type = eval(event[0])
+            if event_type == SYSEX:
+                self.stop_events.append(SysExEvent(0, sysex=event[1]))
+                self.stop_events_raw.append(event)
+                continue
+            if len(event) == 4 and event[3] >= 0:
+                self.stop_events_raw.append(event)
+                self.stop_events.append(MidiEvent(event_type, channel=event[3], data1=event[1], data2=event[2]))
+            else:
+                if len(event) == 3:
+                    self.stop_events_raw.append(event+(-1, ))
+                else:
+                    self.stop_events_raw.append(event)
+                for c in range(16):
+                    self.stop_events.append(MidiEvent(event_type, channel=c, data1=event[1], data2=event[2]))
+
     def create_ctrl_events(self):
+        def fill_dict(event, func):
+            if event.channel >= 0:
+                self.ctrl_events[(event.channel, _id_to_event[event.event_type], event.param, event.value)] = func
+            else:
+                for channel in range(16):
+                    self.ctrl_events[(channel, _id_to_event[event.event_type], event.param, event.value)] = func
+        self.ctrl_events = {}
         if self.toggle_mode:
-            self.ctrl_events = {
-                        (_id_to_event[self.enable_event[0]], self.enable_event[1], self.enable_event[2]): self.enable_toggle, 
-                        (_id_to_event[self.stop_event[0]], self.stop_event[1], self.stop_event[2]): self.stop, 
-                        }
+            fill_dict(self.ctrl_enable_event, self.enable_toggle)
         else:
-            self.ctrl_events = {
-                        (_id_to_event[self.enable_event[0]], self.enable_event[1], self.enable_event[2]): lambda: self.enable_set(True), 
-                        (_id_to_event[self.disable_event[0]], self.disable_event[1], self.disable_event[2]): lambda: self.enable_set(False), 
-                        (_id_to_event[self.stop_event[0]], self.stop_event[1], self.stop_event[2]): self.enable_set, 
-                        }
+            fill_dict(self.ctrl_enable_event, lambda: self.enable_set(True))
+            fill_dict(self.ctrl_disable_event, lambda: self.enable_set(False))
+        fill_dict(self.ctrl_stop_event, self.stop)
+#        if self.toggle_mode:
+#            self.ctrl_events = {
+#                        (_id_to_event[self.ctrl_enable_event[0]], self.ctrl_enable_event[1], self.ctrl_enable_event[2]): self.enable_toggle, 
+#                        (_id_to_event[self.ctrl_stop_event[0]], self.ctrl_stop_event[1], self.ctrl_stop_event[2]): self.stop, 
+#                        }
+#        else:
+#            self.ctrl_events = {
+#                        (_id_to_event[self.ctrl_enable_event[0]], self.ctrl_enable_event[1], self.ctrl_enable_event[2]): lambda: self.enable_set(True), 
+#                        (_id_to_event[self.ctrl_disable_event[0]], self.ctrl_disable_event[1], self.ctrl_disable_event[2]): lambda: self.enable_set(False), 
+#                        (_id_to_event[self.ctrl_stop_event[0]], self.ctrl_stop_event[1], self.ctrl_stop_event[2]): self.stop, 
+#                        }
 
     def icon_set(self, state=None):
         if state is None:
@@ -538,12 +951,16 @@ class Looper(QtCore.QObject):
 
     def enable_set(self, state):
         self.enabled = state
-        self.clear_buffer()
         if not state and self.pattern:
-            for data in self.pattern:
-                data.play.disconnect()
-        self.event_buffer.stop()
+            stop_notes, sources = self.event_buffer.stop()
+            for noteoff in stop_notes:
+                self.output_event(noteoff)
+                if self.stop_notes:
+                    self.output_event(noteoff)
+            self.stop_events_send(sources)
+        self.clear_buffer()
         self.icon_set()
+        self.fb_send(self.fb_stop_events + self.fb_enable_events if state else self.fb_disable_events)
 
     def enable_toggle(self):
         self.enable_set(not self.enabled)
@@ -552,7 +969,13 @@ class Looper(QtCore.QObject):
         for client_id, port_dict in self.graph.port_id_dict.items():
             if client_id == 0: continue
             for port_id, port in port_dict.items():
-#                if port.is_output and port != self.alsa.output and not alsaseq.SEQ_PORT_CAP_NO_EXPORT in port.caps:
+                if port == self.feedback: continue
+                if self.blacklist:
+                    ports_re = re.compile('|'.join(self.blacklist))
+                    match = ports_re.match('{}:{}'.format(port.client.name, port.name))
+                    if match is not None: continue
+                    match = ports_re.match('{}:{}'.format(*port.addr))
+                    if match is not None: continue
                 if port.is_output and not alsaseq.SEQ_PORT_CAP_NO_EXPORT in port.caps:
                     if isinstance(self.auto_connect, int):
                         if self.auto_connect&3:
@@ -614,13 +1037,13 @@ class Looper(QtCore.QObject):
 
     def alsa_midi_event(self, event):
         if not self.single_input and tuple(event.dest) == tuple(self.control.addr):
-            cmd = self.ctrl_events.get((event.type, event.data1, event.data2))
+            cmd = self.ctrl_events.get((event.channel, event.type, event.data1, event.data2))
             if cmd:
                 cmd()
             return
         time = self.timer.elapsed()
         if self.single_input:
-            cmd = self.ctrl_events.get((event.type, event.data1, event.data2))
+            cmd = self.ctrl_events.get((event.channel, event.type, event.data1, event.data2))
             if cmd:
                 cmd()
                 return
@@ -628,6 +1051,7 @@ class Looper(QtCore.QObject):
             return
         if not self.event_buffer:
             self.timer.start()
+            time = 0
         client_id, port_id = map(int, event.source)
 #        client_name = str(self.graph.client_id_dict[client_id])
 #        port_name = str(self.graph.port_id_dict[client_id][port_id])
@@ -639,16 +1063,14 @@ class Looper(QtCore.QObject):
         source = MidiSource(client_id, port_id)
 #        print 'T: {} ({}) > {}'.format(self.timer.nsecsElapsed(), event, event.dest)
         self.event_buffer.append(event, time, source)
-        self.last_event_timer.start()
         if not self.pattern:
+            self.last_event_timer.start()
             self.icon_set(ACTIVE)
             self.icon_timer.start()
 
-    def last_event_timeout(self):
-        if self.timer.elapsed()/(10**3) < (self.last_event_limit+self.minimum_time):
-#            self.icon_set()
-            self.clear_buffer()
-            return
+#    def last_event_timeout(self):
+#        if self.timer.elapsed()/(10**3) < (self.last_event_limit+self.minimum_time):
+#        self.clear_buffer()
 
     def clear_buffer(self):
         self.event_buffer.pattern_created.disconnect()
@@ -661,24 +1083,39 @@ class Looper(QtCore.QObject):
         self.pattern = pattern
         for data in pattern:
             data.play.connect(self.output_event)
-        print 'playing!'
+        print 'playing loop!'
+        self.last_event_timer.stop()
         self.icon_timer.stop()
         self.icon_set(PLAY)
+        self.fb_send(self.fb_play_events)
 
     def stop(self):
-        if self.pattern:
-            for data in self.pattern:
-                data.play.disconnect()
-        self.event_buffer.stop()
+#        if self.pattern:
+#            for data in self.pattern:
+#                data.play.disconnect()
+        stop_notes, sources = self.event_buffer.stop()
+        for noteoff in stop_notes:
+            if self.stop_notes:
+                self.output_event(noteoff)
+        self.stop_events_send(sources)
         self.clear_buffer()
         self.icon_set()
+        self.fb_send(self.fb_stop_events)
 
-    def stop_disable(self):
-        if self.pattern:
-            for data in self.pattern:
-                data.play.disconnect()
-        self.event_buffer.stop()
-        self.enable_set(False)
+    def stop_events_send(self, sources):
+        for source in sources:
+            for event in self.stop_events:
+                event.source = source
+                self.output_event(event)
+#            self.output_event(event)
+
+#    def stop_disable(self):
+#        if self.pattern:
+#            for data in self.pattern:
+#                data.play.disconnect()
+#        self.event_buffer.stop()
+#        self.clear_buffer()
+#        self.enable_set(False)
 
     def output_event(self, event):
         event = event.get_event()
@@ -691,13 +1128,25 @@ class Looper(QtCore.QObject):
             self.seq.output_event(event)
             sent = True
         if not sent:
-            print 'qualcosa non va, non c\'è output!'
+            print 'qualcosa non va, non c\'è output! ({}) > {}'.format(event.source, conns)
             return
 #        event.source = self.alsa.output.addr
 #        event.dest = 0xfe, 0xfd
 #        print 'sending event {} (src: {}, dest: {})'.format(event.type, event.source, event.dest)
 #        self.seq.output_event(event)
         self.seq.drain_output()
+
+    def fb_send(self, ev_list):
+        for ev_type, channel, data1, data2 in ev_list:
+            ev_type = eval(ev_type)
+            if ev_type != SYSEX:
+                event = MidiEvent(ev_type, channel=channel, data1=data1, data2=data2).get_event()
+            else:
+                event = SysExEvent(0, data1).get_event()
+            event.source = self.feedback.addr
+            event.dest = 0xfe, 0xfd
+            self.seq.output_event(event)
+            self.seq.drain_output()
 
 
     def show_menu(self, reason):
@@ -722,13 +1171,18 @@ class Looper(QtCore.QObject):
         sep.setSeparator(True)
         settings = QtGui.QAction('&Settings...', self)
         settings.triggered.connect(self.show_settings)
+        about = QtGui.QAction('&About...', self)
+        about.triggered.connect(self.show_about)
         sep2 = QtGui.QAction(self)
         sep2.setSeparator(True)
         quit_item = QtGui.QAction('&Quit', self)
         quit_item.setIcon(QtGui.QIcon.fromTheme('application-exit'))
         quit_item.triggered.connect(self.quit)
-        menu.addActions([sep, settings, sep2, quit_item])
+        menu.addActions([sep, settings, about, sep2, quit_item])
         menu.exec_(QtGui.QCursor.pos())
+
+    def show_about(self):
+        AboutDialog(self).exec_()
 
     def show_settings(self):
         dialog = SettingsDialog(self)
@@ -748,6 +1202,8 @@ class Looper(QtCore.QObject):
             auto_connect = tuple(str(dialog.auto_connect_model.item(r).text()) for r in range(dialog.auto_connect_model.rowCount()))
             self.auto_connect = auto_connect if auto_connect else 0
         self.settings.setValue('auto_connect', self.auto_connect)
+        self.blacklist = tuple(str(dialog.blacklist_model.item(r).text()) for r in range(dialog.blacklist_model.rowCount()))
+        self.settings.setValue('blacklist', self.blacklist)
 
         self.time_threshold = dialog.time_threshold_spin.value()
         self.settings.setValue('time_threshold', self.time_threshold)
@@ -765,17 +1221,71 @@ class Looper(QtCore.QObject):
                                   }
         self.event_filter = {ev:dest for dest, ev_tuple in self.event_filter_mode.items() for ev in ev_tuple}
 
-        self.ctrl_auto_connect = str(dialog.ctrl_auto_connect_edit.text())
+        self.stop_notes = dialog.stop_notes_chk.isChecked()
+        self.settings.setValue('stop_notes', self.stop_notes)
+
+        stop_events = []
+        while dialog.stop_events_model.rowCount() > 0:
+            row = dialog.stop_events_model.takeRow(0)
+            ev_type = row[0].data(EventRole).toPyObject()
+            if ev_type == SYSEX:
+                sysex = row[2].data(SysExRole).toPyObject()
+                stop_events.append((str(ev_type), sysex, None, None))
+                continue
+            chan = row[1].data(IdRole).toPyObject()
+            data1 = row[2].data(IdRole).toPyObject()
+            data2 = row[3].data(IdRole).toPyObject()
+            stop_events.append((str(ev_type), data1, data2, chan))
+        self.create_stop_events(stop_events)
+        self.settings.setValue('stop_events', stop_events)
+
+        if dialog.ctrl_auto_connect_chk.isChecked():
+            ctrl_auto_connect = str(dialog.ctrl_auto_connect_edit.text())
+        else:
+            ctrl_auto_connect = None
+        if ctrl_auto_connect:
+            self.ctrl_auto_connect = ctrl_auto_connect
+        else:
+            self.ctrl_auto_connect = None
+
         self.settings.setValue('ctrl_auto_connect', self.ctrl_auto_connect)
-        self.toggle_mode = dialog.toggle_chk.isChecked()
+        self.toggle_mode = dialog.toggle_mode_chk.isChecked()
         self.settings.setValue('toggle_mode', self.toggle_mode)
-        self.enable_event = (dialog.enable_combo.currentIndex(), dialog.enable_param_spin.value(), dialog.enable_value_spin.value())
-        self.settings.setValue('enable_event', self.enable_event)
-        self.disable_event = (dialog.disable_combo.currentIndex(), dialog.disable_param_spin.value(), dialog.disable_value_spin.value())
-        self.settings.setValue('disable_event', self.disable_event)
-        self.stop_event = (dialog.stop_combo.currentIndex(), dialog.stop_param_spin.value(), dialog.stop_value_spin.value())
-        self.settings.setValue('stop_event', self.stop_event)
+        self.ctrl_enable_event = RemoteCtrlEvent(dialog.enable_combo.currentIndex(), dialog.enable_param_spin.value(), dialog.enable_value_spin.value(), dialog.enable_chan_spin.value()-1)
+        self.settings.setValue('ctrl_enable_event', self.ctrl_enable_event)
+        self.ctrl_disable_event = RemoteCtrlEvent(dialog.disable_combo.currentIndex(), dialog.disable_param_spin.value(), dialog.disable_value_spin.value(), dialog.disable_chan_spin.value()-1)
+        self.settings.setValue('ctrl_disable_event', self.ctrl_disable_event)
+        self.ctrl_stop_event = RemoteCtrlEvent(dialog.stop_combo.currentIndex(), dialog.stop_param_spin.value(), dialog.stop_value_spin.value(), dialog.stop_chan_spin.value()-1)
+        self.settings.setValue('ctrl_stop_event', self.ctrl_stop_event)
         self.create_ctrl_events()
+
+        if dialog.fb_auto_connect_chk.isChecked():
+            fb_auto_connect = str(dialog.fb_auto_connect_edit.text())
+        else:
+            fb_auto_connect = None
+        if fb_auto_connect:
+            self.fb_auto_connect = fb_auto_connect
+        else:
+            self.fb_auto_connect = None
+        self.settings.setValue('fb_auto_connect', self.fb_auto_connect)
+        for action in ['enable', 'disable', 'stop', 'play']:
+            model = getattr(dialog, 'fb_{}_table'.format(action)).model()
+            if model.rowCount() == 0:
+                setattr(self, 'fb_{}_events'.format(action), [])
+                continue
+            ev_list = []
+            while model.rowCount() > 0:
+                row = model.takeRow(0)
+                ev_type = row[0].data(EventRole).toPyObject()
+                chan = row[1].data(IdRole).toPyObject()
+                if ev_type == SYSEX:
+                    data1 = row[2].data(SysExRole).toPyObject()
+                else:
+                    data1 = row[2].data(IdRole).toPyObject()
+                data2 = row[3].data(IdRole).toPyObject()
+                ev_list.append((str(ev_type), chan, data1, data2))
+            setattr(self, 'fb_{}_events'.format(action), ev_list)
+            self.settings.setValue('fb_{}_events'.format(action), ev_list)
 
 
     def quit(self):

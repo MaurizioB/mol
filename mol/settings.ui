@@ -6,262 +6,15 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>519</width>
-    <height>639</height>
+    <width>562</width>
+    <height>715</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>MOL settings</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
-   <item row="4" column="0">
-    <widget class="QGroupBox" name="groupBox_2">
-     <property name="title">
-      <string>MIDI Control settings</string>
-     </property>
-     <layout class="QGridLayout" name="gridLayout_3" columnstretch="1,0,0,0,0">
-      <property name="horizontalSpacing">
-       <number>16</number>
-      </property>
-      <item row="2" column="0" colspan="5">
-       <widget class="QCheckBox" name="toggle_chk">
-        <property name="toolTip">
-         <string>If enabled, uses the &quot;Enable&quot; event to toggle between enabled and disabled state. If a loop is currently playing, it will be stopped.</string>
-        </property>
-        <property name="text">
-         <string>Toggle mode</string>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="1" colspan="3">
-       <widget class="QLineEdit" name="ctrl_auto_connect_edit">
-        <property name="enabled">
-         <bool>false</bool>
-        </property>
-        <property name="toolTip">
-         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Type ports MOL will try to automatically connect to.&lt;br/&gt;The complete format is &lt;span style=&quot; font-weight:600;&quot;&gt;client&lt;/span&gt;:&lt;span style=&quot; font-weight:600;&quot;&gt;port&lt;/span&gt;, wheter as string or as numbers. For example:&lt;/p&gt;&lt;ul style=&quot;margin-top: 0px; margin-bottom: 0px; margin-left: 0px; margin-right: 0px; -qt-list-indent: 1;&quot;&gt;&lt;li style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;USB MIDI interface:USB MIDI Port 1&lt;/li&gt;&lt;li style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;20:0&lt;/li&gt;&lt;/ul&gt;&lt;p&gt;Pattern search works using regular expressions, the string &amp;quot;USB MIDI.*1&amp;quot; will connect to every port with client name beginning with &amp;quot;USB MIDI&amp;quot; and port name ending with &amp;quot;1&amp;quot;.&lt;/p&gt;&lt;p&gt;Multiple ports can be specified, separated by a comma.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-        </property>
-       </widget>
-      </item>
-      <item row="3" column="3">
-       <widget class="QLabel" name="label_4">
-        <property name="text">
-         <string>Value:</string>
-        </property>
-        <property name="alignment">
-         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-        </property>
-       </widget>
-      </item>
-      <item row="3" column="0">
-       <widget class="QLabel" name="label_2">
-        <property name="text">
-         <string>Enable</string>
-        </property>
-       </widget>
-      </item>
-      <item row="4" column="4">
-       <widget class="QSpinBox" name="disable_value_spin">
-        <property name="maximumSize">
-         <size>
-          <width>48</width>
-          <height>16777215</height>
-         </size>
-        </property>
-        <property name="minimum">
-         <number>0</number>
-        </property>
-        <property name="maximum">
-         <number>127</number>
-        </property>
-        <property name="value">
-         <number>0</number>
-        </property>
-       </widget>
-      </item>
-      <item row="3" column="2">
-       <widget class="QSpinBox" name="enable_param_spin">
-        <property name="maximumSize">
-         <size>
-          <width>48</width>
-          <height>16777215</height>
-         </size>
-        </property>
-        <property name="maximum">
-         <number>127</number>
-        </property>
-       </widget>
-      </item>
-      <item row="4" column="0">
-       <widget class="QLabel" name="label_3">
-        <property name="text">
-         <string>Stop/disable</string>
-        </property>
-       </widget>
-      </item>
-      <item row="3" column="4">
-       <widget class="QSpinBox" name="enable_value_spin">
-        <property name="maximumSize">
-         <size>
-          <width>48</width>
-          <height>16777215</height>
-         </size>
-        </property>
-        <property name="minimum">
-         <number>0</number>
-        </property>
-        <property name="maximum">
-         <number>127</number>
-        </property>
-       </widget>
-      </item>
-      <item row="4" column="2">
-       <widget class="QSpinBox" name="disable_param_spin">
-        <property name="maximumSize">
-         <size>
-          <width>48</width>
-          <height>16777215</height>
-         </size>
-        </property>
-        <property name="maximum">
-         <number>127</number>
-        </property>
-       </widget>
-      </item>
-      <item row="4" column="3">
-       <widget class="QLabel" name="label_5">
-        <property name="text">
-         <string>Value:</string>
-        </property>
-        <property name="alignment">
-         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-        </property>
-       </widget>
-      </item>
-      <item row="4" column="1">
-       <widget class="QComboBox" name="disable_combo">
-        <item>
-         <property name="text">
-          <string>CTRL parameter</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>Note ON</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>Note OFF</string>
-         </property>
-        </item>
-       </widget>
-      </item>
-      <item row="3" column="1">
-       <widget class="QComboBox" name="enable_combo">
-        <item>
-         <property name="text">
-          <string>CTRL parameter</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>Note ON</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>Note OFF</string>
-         </property>
-        </item>
-       </widget>
-      </item>
-      <item row="5" column="0">
-       <widget class="QLabel" name="label_6">
-        <property name="text">
-         <string>Stop</string>
-        </property>
-       </widget>
-      </item>
-      <item row="5" column="4">
-       <widget class="QSpinBox" name="stop_value_spin">
-        <property name="maximumSize">
-         <size>
-          <width>48</width>
-          <height>16777215</height>
-         </size>
-        </property>
-        <property name="minimum">
-         <number>0</number>
-        </property>
-        <property name="maximum">
-         <number>127</number>
-        </property>
-        <property name="value">
-         <number>0</number>
-        </property>
-       </widget>
-      </item>
-      <item row="5" column="2">
-       <widget class="QSpinBox" name="stop_param_spin">
-        <property name="maximumSize">
-         <size>
-          <width>48</width>
-          <height>16777215</height>
-         </size>
-        </property>
-        <property name="maximum">
-         <number>127</number>
-        </property>
-       </widget>
-      </item>
-      <item row="5" column="3">
-       <widget class="QLabel" name="label_7">
-        <property name="text">
-         <string>Value:</string>
-        </property>
-        <property name="alignment">
-         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-        </property>
-       </widget>
-      </item>
-      <item row="5" column="1">
-       <widget class="QComboBox" name="stop_combo">
-        <item>
-         <property name="text">
-          <string>CTRL parameter</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>Note ON</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>Note OFF</string>
-         </property>
-        </item>
-       </widget>
-      </item>
-      <item row="0" column="0">
-       <widget class="QCheckBox" name="ctrl_auto_connect_chk">
-        <property name="text">
-         <string>Auto connect</string>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="0" colspan="5">
-       <widget class="Line" name="line">
-        <property name="orientation">
-         <enum>Qt::Horizontal</enum>
-        </property>
-       </widget>
-      </item>
-     </layout>
-    </widget>
-   </item>
-   <item row="5" column="0">
+   <item row="3" column="0">
     <widget class="QDialogButtonBox" name="buttonBox">
      <property name="orientation">
       <enum>Qt::Horizontal</enum>
@@ -271,369 +24,1374 @@
      </property>
     </widget>
    </item>
-   <item row="1" column="0">
-    <widget class="QGroupBox" name="groupBox">
-     <property name="title">
-      <string>General settings</string>
+   <item row="0" column="0">
+    <widget class="QTabWidget" name="tabWidget">
+     <property name="currentIndex">
+      <number>0</number>
      </property>
-     <layout class="QGridLayout" name="gridLayout_2">
-      <item row="1" column="0">
-       <widget class="QLabel" name="label">
-        <property name="text">
-         <string>Maximum number of seconds before ignoring previous events</string>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="1">
-       <widget class="QSpinBox" name="last_event_limit_spin">
-        <property name="maximumSize">
-         <size>
-          <width>48</width>
-          <height>16777215</height>
-         </size>
-        </property>
-        <property name="minimum">
-         <number>2</number>
-        </property>
-        <property name="maximum">
-         <number>60</number>
-        </property>
-        <property name="value">
-         <number>10</number>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="0" colspan="2">
-       <widget class="QCheckBox" name="startup_chk">
-        <property name="text">
-         <string>Enable on startup</string>
-        </property>
-       </widget>
-      </item>
-      <item row="2" column="0">
-       <widget class="QLabel" name="label_8">
-        <property name="text">
-         <string>Maximum pattern length</string>
-        </property>
-       </widget>
-      </item>
-      <item row="2" column="1">
-       <widget class="QSpinBox" name="max_size_spin">
-        <property name="maximumSize">
-         <size>
-          <width>48</width>
-          <height>16777215</height>
-         </size>
-        </property>
-        <property name="minimum">
-         <number>16</number>
-        </property>
-        <property name="maximum">
-         <number>150</number>
-        </property>
-        <property name="value">
-         <number>16</number>
-        </property>
-       </widget>
-      </item>
-     </layout>
-    </widget>
-   </item>
-   <item row="3" column="0">
-    <widget class="QGroupBox" name="groupBox_3">
-     <property name="title">
-      <string>Loop activation</string>
-     </property>
-     <layout class="QGridLayout" name="gridLayout_4">
-      <item row="3" column="0">
-       <widget class="QListView" name="trigger_list">
-        <property name="maximumSize">
-         <size>
-          <width>16777215</width>
-          <height>80</height>
-         </size>
-        </property>
-        <property name="toolTip">
-         <string>These events will be used to trigger a loop.
+     <widget class="QWidget" name="tab">
+      <attribute name="title">
+       <string>General configuration</string>
+      </attribute>
+      <layout class="QGridLayout" name="gridLayout_7">
+       <item row="3" column="0">
+        <widget class="QGroupBox" name="groupBox_6">
+         <property name="title">
+          <string>Stop events</string>
+         </property>
+         <layout class="QGridLayout" name="gridLayout_10">
+          <item row="4" column="0">
+           <widget class="QPushButton" name="stop_events_down_btn">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>20</width>
+              <height>20</height>
+             </size>
+            </property>
+            <property name="text">
+             <string>▼</string>
+            </property>
+           </widget>
+          </item>
+          <item row="4" column="2">
+           <widget class="QPushButton" name="stop_events_del_btn">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>20</width>
+              <height>20</height>
+             </size>
+            </property>
+            <property name="text">
+             <string>-</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="0" colspan="3">
+           <widget class="QLabel" name="label_16">
+            <property name="text">
+             <string>Events that will be sent after stopping a playing loop (e.g.: to stop all notes)</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="0" colspan="3">
+           <widget class="QCheckBox" name="stop_notes_chk">
+            <property name="text">
+             <string>Try to detect still playing notes and stop them</string>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="0">
+           <widget class="QPushButton" name="stop_events_up_btn">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>20</width>
+              <height>20</height>
+             </size>
+            </property>
+            <property name="text">
+             <string>▲</string>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="2">
+           <widget class="QPushButton" name="stop_events_add_btn">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>20</width>
+              <height>20</height>
+             </size>
+            </property>
+            <property name="text">
+             <string>+</string>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="1" rowspan="2">
+           <widget class="QTableView" name="stop_events_table">
+            <property name="maximumSize">
+             <size>
+              <width>16777215</width>
+              <height>80</height>
+             </size>
+            </property>
+            <attribute name="verticalHeaderVisible">
+             <bool>false</bool>
+            </attribute>
+           </widget>
+          </item>
+          <item row="1" column="0" colspan="3">
+           <widget class="Line" name="line_4">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item row="1" column="0">
+        <widget class="QGroupBox" name="groupBox_4">
+         <property name="title">
+          <string>Input connections</string>
+         </property>
+         <layout class="QGridLayout" name="gridLayout_6">
+          <item row="0" column="0" colspan="2">
+           <layout class="QHBoxLayout" name="horizontalLayout_3">
+            <item>
+             <widget class="QRadioButton" name="auto_connect_hw_radio">
+              <property name="toolTip">
+               <string>Automatically connect to physical devices, like hardware sound cards and USB midi devices.</string>
+              </property>
+              <property name="text">
+               <string>Hardware ports</string>
+              </property>
+              <property name="checked">
+               <bool>true</bool>
+              </property>
+              <attribute name="buttonGroup">
+               <string notr="true">auto_connect_group</string>
+              </attribute>
+             </widget>
+            </item>
+            <item>
+             <widget class="QRadioButton" name="auto_connect_sw_radio">
+              <property name="toolTip">
+               <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Automatically connect to software devices, like sequencers or virtual keyboards.&lt;/p&gt;&lt;p&gt;Be aware that programs tend to send out the incoming events, this might result in repeated messages that MOL &lt;span style=&quot; font-weight:600;&quot;&gt;cannot&lt;/span&gt; detect and could cause unpredictable behaviour (MOL and currently active programs could even crash).&lt;br/&gt;You should consider using the &lt;span style=&quot; font-weight:600;&quot;&gt;Custom ports&lt;/span&gt; mode, and manually set to which ports MOL will try to connect to.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+              </property>
+              <property name="text">
+               <string>Software ports</string>
+              </property>
+              <property name="checked">
+               <bool>false</bool>
+              </property>
+              <attribute name="buttonGroup">
+               <string notr="true">auto_connect_group</string>
+              </attribute>
+             </widget>
+            </item>
+            <item>
+             <widget class="QRadioButton" name="auto_connect_all_radio">
+              <property name="toolTip">
+               <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Automatically connect to &lt;span style=&quot; font-weight:600;&quot;&gt;ANY&lt;/span&gt; ALSA device, hardware and software.&lt;/p&gt;&lt;p&gt;Be aware that programs tend to send out the incoming events, this might result in repeated messages that MOL &lt;span style=&quot; font-weight:600;&quot;&gt;cannot&lt;/span&gt; detect and could cause unpredictable behaviour (MOL and currently active programs could even crash).&lt;br/&gt;You should consider using the &lt;span style=&quot; font-weight:600;&quot;&gt;Custom ports&lt;/span&gt; mode, and manually set to which ports MOL will try to connect to.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+              </property>
+              <property name="text">
+               <string>Any port</string>
+              </property>
+              <attribute name="buttonGroup">
+               <string notr="true">auto_connect_group</string>
+              </attribute>
+             </widget>
+            </item>
+            <item>
+             <widget class="QRadioButton" name="auto_connect_custom_radio">
+              <property name="toolTip">
+               <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Create a visible ALSA port for MOL.&lt;/p&gt;&lt;p&gt;If no port is selected in the alongside list, you have to manually connect MOL to the input devices you want, using a dedicated patchbay (like QJackCtl, Patchage or ALSA's &lt;span style=&quot; font-style:italic;&quot;&gt;aconnect&lt;/span&gt;).&lt;/p&gt;&lt;p&gt;Use the list to add devices MOL will try to automatically connect to.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+              </property>
+              <property name="text">
+               <string>Custom ports</string>
+              </property>
+              <attribute name="buttonGroup">
+               <string notr="true">auto_connect_group</string>
+              </attribute>
+             </widget>
+            </item>
+           </layout>
+          </item>
+          <item row="3" column="0" colspan="2">
+           <widget class="QLabel" name="label_13">
+            <property name="text">
+             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Warning&lt;/span&gt;: to apply these settings you &lt;span style=&quot; font-weight:600;&quot;&gt;must&lt;/span&gt; restart MOL!&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+            </property>
+            <property name="textFormat">
+             <enum>Qt::RichText</enum>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="0" colspan="2">
+           <widget class="Line" name="line_6">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="0" colspan="2">
+           <layout class="QGridLayout" name="gridLayout_11">
+            <item row="1" column="3" rowspan="3">
+             <widget class="QListView" name="auto_connect_list">
+              <property name="enabled">
+               <bool>false</bool>
+              </property>
+              <property name="maximumSize">
+               <size>
+                <width>16777215</width>
+                <height>80</height>
+               </size>
+              </property>
+              <property name="toolTip">
+               <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Use this list to add stocazzo&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+              </property>
+             </widget>
+            </item>
+            <item row="2" column="4">
+             <widget class="QPushButton" name="auto_connect_add_btn">
+              <property name="enabled">
+               <bool>false</bool>
+              </property>
+              <property name="text">
+               <string>+</string>
+              </property>
+             </widget>
+            </item>
+            <item row="3" column="4">
+             <widget class="QPushButton" name="auto_connect_del_btn">
+              <property name="enabled">
+               <bool>false</bool>
+              </property>
+              <property name="text">
+               <string>-</string>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="3" colspan="2">
+             <widget class="QLabel" name="label_14">
+              <property name="text">
+               <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Custom whitelist!&lt;/span&gt; Devices that MOL will try to connect to if &amp;quot;&lt;span style=&quot; font-style:italic;&quot;&gt;Custom ports&lt;/span&gt;&amp;quot; mode is selected.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+              </property>
+              <property name="wordWrap">
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+            <item row="3" column="1">
+             <widget class="QPushButton" name="blacklist_del_btn">
+              <property name="text">
+               <string>-</string>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="4">
+             <spacer name="verticalSpacer_4">
+              <property name="orientation">
+               <enum>Qt::Vertical</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>20</width>
+                <height>40</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+            <item row="2" column="1">
+             <widget class="QPushButton" name="blacklist_add_btn">
+              <property name="text">
+               <string>+</string>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="1">
+             <spacer name="verticalSpacer_6">
+              <property name="orientation">
+               <enum>Qt::Vertical</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>20</width>
+                <height>40</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+            <item row="1" column="0" rowspan="3">
+             <widget class="QListView" name="blacklist_list">
+              <property name="maximumSize">
+               <size>
+                <width>16777215</width>
+                <height>80</height>
+               </size>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="0" colspan="2">
+             <widget class="QLabel" name="label_23">
+              <property name="text">
+               <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Blacklist!&lt;/span&gt; Devices MOL will &lt;span style=&quot; font-weight:600;&quot;&gt;not&lt;/span&gt; try to connect to. This list has precedence on the &amp;quot;&lt;span style=&quot; font-style:italic;&quot;&gt;Custom ports&lt;/span&gt;&amp;quot; list.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+              </property>
+              <property name="wordWrap">
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="2" rowspan="4">
+             <widget class="Line" name="line_5">
+              <property name="orientation">
+               <enum>Qt::Vertical</enum>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item row="2" column="0">
+        <widget class="QGroupBox" name="groupBox_3">
+         <property name="title">
+          <string>Loop activation</string>
+         </property>
+         <layout class="QGridLayout" name="gridLayout_4">
+          <item row="3" column="0">
+           <widget class="QListView" name="trigger_list">
+            <property name="maximumSize">
+             <size>
+              <width>16777215</width>
+              <height>80</height>
+             </size>
+            </property>
+            <property name="toolTip">
+             <string>These events will be used to trigger a loop.
 It is usually good enough to leave only Note On events, because Note Off events might occur in very different moment, and even overlap with new Note On events.</string>
-        </property>
-        <property name="editTriggers">
-         <set>QAbstractItemView::NoEditTriggers</set>
-        </property>
-       </widget>
-      </item>
-      <item row="3" column="1">
-       <layout class="QVBoxLayout" name="verticalLayout">
-        <item>
-         <widget class="QPushButton" name="trigger_add_btn">
-          <property name="minimumSize">
-           <size>
-            <width>20</width>
-            <height>0</height>
-           </size>
+            </property>
+            <property name="editTriggers">
+             <set>QAbstractItemView::NoEditTriggers</set>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="1">
+           <layout class="QVBoxLayout" name="verticalLayout">
+            <item>
+             <widget class="QPushButton" name="trigger_add_btn">
+              <property name="minimumSize">
+               <size>
+                <width>20</width>
+                <height>0</height>
+               </size>
+              </property>
+              <property name="text">
+               <string>&lt;</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="trigger_del_btn">
+              <property name="minimumSize">
+               <size>
+                <width>20</width>
+                <height>0</height>
+               </size>
+              </property>
+              <property name="text">
+               <string>&gt;</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+          <item row="3" column="3">
+           <layout class="QVBoxLayout" name="verticalLayout_2">
+            <item>
+             <widget class="QPushButton" name="record_add_btn">
+              <property name="minimumSize">
+               <size>
+                <width>20</width>
+                <height>0</height>
+               </size>
+              </property>
+              <property name="text">
+               <string>&lt;</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="record_del_btn">
+              <property name="minimumSize">
+               <size>
+                <width>20</width>
+                <height>0</height>
+               </size>
+              </property>
+              <property name="text">
+               <string>&gt;</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+          <item row="3" column="2">
+           <widget class="QListView" name="record_list">
+            <property name="maximumSize">
+             <size>
+              <width>16777215</width>
+              <height>80</height>
+             </size>
+            </property>
+            <property name="toolTip">
+             <string>Events in this list will be recorded but not used to recognize a repeated pattern.</string>
+            </property>
+            <property name="editTriggers">
+             <set>QAbstractItemView::NoEditTriggers</set>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="0" colspan="5">
+           <layout class="QGridLayout" name="gridLayout_5">
+            <item row="0" column="0">
+             <widget class="QLabel" name="label_12">
+              <property name="text">
+               <string>Time tollerance threshold in milliseconds</string>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="1">
+             <widget class="QSpinBox" name="time_threshold_spin">
+              <property name="maximumSize">
+               <size>
+                <width>48</width>
+                <height>16777215</height>
+               </size>
+              </property>
+              <property name="minimum">
+               <number>50</number>
+              </property>
+              <property name="maximum">
+               <number>200</number>
+              </property>
+              <property name="singleStep">
+               <number>10</number>
+              </property>
+              <property name="value">
+               <number>100</number>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+          <item row="2" column="4">
+           <widget class="QLabel" name="label_11">
+            <property name="text">
+             <string>Ignored events</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="0">
+           <widget class="QLabel" name="label_9">
+            <property name="text">
+             <string>Triggering events</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="2">
+           <widget class="QLabel" name="label_10">
+            <property name="text">
+             <string>Recorded events</string>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="4">
+           <widget class="QListView" name="ignore_list">
+            <property name="maximumSize">
+             <size>
+              <width>16777215</width>
+              <height>80</height>
+             </size>
+            </property>
+            <property name="toolTip">
+             <string>Event types in this list will always be ignored</string>
+            </property>
+            <property name="editTriggers">
+             <set>QAbstractItemView::NoEditTriggers</set>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="0" colspan="5">
+           <widget class="Line" name="line_2">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item row="0" column="0">
+        <widget class="QGroupBox" name="groupBox">
+         <property name="title">
+          <string>Base configuration</string>
+         </property>
+         <layout class="QGridLayout" name="gridLayout_2">
+          <item row="1" column="0">
+           <widget class="QLabel" name="label">
+            <property name="text">
+             <string>Maximum number of seconds before ignoring previous events</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="1">
+           <widget class="QSpinBox" name="last_event_limit_spin">
+            <property name="maximumSize">
+             <size>
+              <width>48</width>
+              <height>16777215</height>
+             </size>
+            </property>
+            <property name="minimum">
+             <number>2</number>
+            </property>
+            <property name="maximum">
+             <number>60</number>
+            </property>
+            <property name="value">
+             <number>10</number>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="0" colspan="2">
+           <widget class="QCheckBox" name="startup_chk">
+            <property name="text">
+             <string>Enable on startup</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="0">
+           <widget class="QLabel" name="label_8">
+            <property name="text">
+             <string>Maximum pattern length</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="1">
+           <widget class="QSpinBox" name="max_size_spin">
+            <property name="maximumSize">
+             <size>
+              <width>48</width>
+              <height>16777215</height>
+             </size>
+            </property>
+            <property name="minimum">
+             <number>16</number>
+            </property>
+            <property name="maximum">
+             <number>150</number>
+            </property>
+            <property name="value">
+             <number>16</number>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item row="4" column="0">
+        <spacer name="verticalSpacer_3">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>40</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="tab_2">
+      <attribute name="title">
+       <string>MIDI interaction</string>
+      </attribute>
+      <layout class="QGridLayout" name="gridLayout_8">
+       <item row="0" column="0">
+        <widget class="QGroupBox" name="groupBox_2">
+         <property name="title">
+          <string>Remote control</string>
+         </property>
+         <layout class="QGridLayout" name="gridLayout_3" columnstretch="1,0,0,0,0,0,0">
+          <property name="horizontalSpacing">
+           <number>2</number>
           </property>
-          <property name="text">
-           <string>&lt;</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QPushButton" name="trigger_del_btn">
-          <property name="minimumSize">
-           <size>
-            <width>20</width>
-            <height>0</height>
-           </size>
-          </property>
-          <property name="text">
-           <string>&gt;</string>
-          </property>
-         </widget>
-        </item>
-       </layout>
-      </item>
-      <item row="3" column="3">
-       <layout class="QVBoxLayout" name="verticalLayout_2">
-        <item>
-         <widget class="QPushButton" name="record_add_btn">
-          <property name="minimumSize">
-           <size>
-            <width>20</width>
-            <height>0</height>
-           </size>
-          </property>
-          <property name="text">
-           <string>&lt;</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QPushButton" name="record_del_btn">
-          <property name="minimumSize">
-           <size>
-            <width>20</width>
-            <height>0</height>
-           </size>
-          </property>
-          <property name="text">
-           <string>&gt;</string>
-          </property>
-         </widget>
-        </item>
-       </layout>
-      </item>
-      <item row="3" column="2">
-       <widget class="QListView" name="record_list">
-        <property name="maximumSize">
-         <size>
-          <width>16777215</width>
-          <height>80</height>
-         </size>
-        </property>
-        <property name="toolTip">
-         <string>Events in this list will be recorded but not used to recognize a repeated pattern.</string>
-        </property>
-        <property name="editTriggers">
-         <set>QAbstractItemView::NoEditTriggers</set>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="0" colspan="5">
-       <layout class="QGridLayout" name="gridLayout_5">
-        <item row="0" column="0">
-         <widget class="QLabel" name="label_12">
-          <property name="text">
-           <string>Time tollerance threshold in milliseconds</string>
-          </property>
-         </widget>
-        </item>
-        <item row="0" column="1">
-         <widget class="QSpinBox" name="time_threshold_spin">
-          <property name="maximumSize">
-           <size>
-            <width>48</width>
-            <height>16777215</height>
-           </size>
-          </property>
-          <property name="minimum">
-           <number>50</number>
-          </property>
-          <property name="maximum">
-           <number>200</number>
-          </property>
-          <property name="singleStep">
-           <number>10</number>
-          </property>
-          <property name="value">
-           <number>100</number>
-          </property>
-         </widget>
-        </item>
-       </layout>
-      </item>
-      <item row="2" column="4">
-       <widget class="QLabel" name="label_11">
-        <property name="text">
-         <string>Ignored events</string>
-        </property>
-       </widget>
-      </item>
-      <item row="2" column="0">
-       <widget class="QLabel" name="label_9">
-        <property name="text">
-         <string>Triggering events</string>
-        </property>
-       </widget>
-      </item>
-      <item row="2" column="2">
-       <widget class="QLabel" name="label_10">
-        <property name="text">
-         <string>Recorded events</string>
-        </property>
-       </widget>
-      </item>
-      <item row="3" column="4">
-       <widget class="QListView" name="ignore_list">
-        <property name="maximumSize">
-         <size>
-          <width>16777215</width>
-          <height>80</height>
-         </size>
-        </property>
-        <property name="toolTip">
-         <string>Event types in this list will always be ignored</string>
-        </property>
-        <property name="editTriggers">
-         <set>QAbstractItemView::NoEditTriggers</set>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="0" colspan="5">
-       <widget class="Line" name="line_2">
-        <property name="orientation">
-         <enum>Qt::Horizontal</enum>
-        </property>
-       </widget>
-      </item>
-     </layout>
-    </widget>
-   </item>
-   <item row="2" column="0">
-    <widget class="QGroupBox" name="groupBox_4">
-     <property name="title">
-      <string>Input connections</string>
-     </property>
-     <layout class="QGridLayout" name="gridLayout_6">
-      <item row="5" column="0" colspan="4">
-       <widget class="QLabel" name="label_13">
-        <property name="text">
-         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Warning&lt;/span&gt;: to apply these settings you &lt;span style=&quot; font-weight:600;&quot;&gt;must&lt;/span&gt; restart MOL!&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-        </property>
-        <property name="textFormat">
-         <enum>Qt::RichText</enum>
-        </property>
-       </widget>
-      </item>
-      <item row="3" column="0">
-       <widget class="QRadioButton" name="auto_connect_all_radio">
-        <property name="text">
-         <string>Any port</string>
-        </property>
-        <attribute name="buttonGroup">
-         <string notr="true">auto_connect_group</string>
-        </attribute>
-       </widget>
-      </item>
-      <item row="1" column="1" rowspan="4">
-       <spacer name="horizontalSpacer">
-        <property name="orientation">
-         <enum>Qt::Horizontal</enum>
-        </property>
-        <property name="sizeType">
-         <enum>QSizePolicy::Fixed</enum>
-        </property>
-        <property name="sizeHint" stdset="0">
-         <size>
-          <width>20</width>
-          <height>20</height>
-         </size>
-        </property>
-       </spacer>
-      </item>
-      <item row="1" column="0">
-       <widget class="QRadioButton" name="auto_connect_hw_radio">
-        <property name="text">
-         <string>Hardware ports</string>
-        </property>
-        <property name="checked">
-         <bool>true</bool>
-        </property>
-        <attribute name="buttonGroup">
-         <string notr="true">auto_connect_group</string>
-        </attribute>
-       </widget>
-      </item>
-      <item row="2" column="0">
-       <widget class="QRadioButton" name="auto_connect_sw_radio">
-        <property name="text">
-         <string>Software ports</string>
-        </property>
-        <property name="checked">
-         <bool>false</bool>
-        </property>
-        <attribute name="buttonGroup">
-         <string notr="true">auto_connect_group</string>
-        </attribute>
-       </widget>
-      </item>
-      <item row="4" column="3">
-       <widget class="QPushButton" name="auto_connect_del_btn">
-        <property name="enabled">
-         <bool>false</bool>
-        </property>
-        <property name="text">
-         <string>-</string>
-        </property>
-       </widget>
-      </item>
-      <item row="3" column="3">
-       <widget class="QPushButton" name="auto_connect_add_btn">
-        <property name="enabled">
-         <bool>false</bool>
-        </property>
-        <property name="text">
-         <string>+</string>
-        </property>
-       </widget>
-      </item>
-      <item row="4" column="0">
-       <widget class="QRadioButton" name="auto_connect_custom_radio">
-        <property name="text">
-         <string>Custom ports</string>
-        </property>
-        <attribute name="buttonGroup">
-         <string notr="true">auto_connect_group</string>
-        </attribute>
-       </widget>
-      </item>
-      <item row="1" column="2" rowspan="4">
-       <widget class="QListView" name="auto_connect_list">
-        <property name="enabled">
-         <bool>false</bool>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="2">
-       <widget class="QLabel" name="label_14">
-        <property name="text">
-         <string>If custom mode is selected, automatically try to connect to the following ports:</string>
-        </property>
-        <property name="wordWrap">
-         <bool>true</bool>
-        </property>
-       </widget>
-      </item>
-     </layout>
+          <item row="4" column="0">
+           <widget class="QLabel" name="label_3">
+            <property name="text">
+             <string>Stop/disable event:</string>
+            </property>
+           </widget>
+          </item>
+          <item row="5" column="1">
+           <widget class="QComboBox" name="stop_combo">
+            <item>
+             <property name="text">
+              <string>CTRL parameter</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>Note ON</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>Note OFF</string>
+             </property>
+            </item>
+           </widget>
+          </item>
+          <item row="5" column="0">
+           <widget class="QLabel" name="label_6">
+            <property name="text">
+             <string>Stop event:</string>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="0">
+           <widget class="QLabel" name="label_2">
+            <property name="text">
+             <string>Enable event:</string>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="2">
+           <widget class="QSpinBox" name="enable_param_spin">
+            <property name="minimumSize">
+             <size>
+              <width>64</width>
+              <height>0</height>
+             </size>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>64</width>
+              <height>16777215</height>
+             </size>
+            </property>
+            <property name="maximum">
+             <number>127</number>
+            </property>
+           </widget>
+          </item>
+          <item row="4" column="1">
+           <widget class="QComboBox" name="disable_combo">
+            <item>
+             <property name="text">
+              <string>CTRL parameter</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>Note ON</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>Note OFF</string>
+             </property>
+            </item>
+           </widget>
+          </item>
+          <item row="5" column="3">
+           <widget class="QLabel" name="label_7">
+            <property name="text">
+             <string>Value:</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+            </property>
+           </widget>
+          </item>
+          <item row="4" column="3">
+           <widget class="QLabel" name="label_5">
+            <property name="text">
+             <string>Value:</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="4">
+           <widget class="QSpinBox" name="enable_value_spin">
+            <property name="maximumSize">
+             <size>
+              <width>48</width>
+              <height>16777215</height>
+             </size>
+            </property>
+            <property name="minimum">
+             <number>0</number>
+            </property>
+            <property name="maximum">
+             <number>127</number>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="3">
+           <widget class="QLabel" name="label_4">
+            <property name="text">
+             <string>Value:</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+            </property>
+           </widget>
+          </item>
+          <item row="4" column="4">
+           <widget class="QSpinBox" name="disable_value_spin">
+            <property name="maximumSize">
+             <size>
+              <width>48</width>
+              <height>16777215</height>
+             </size>
+            </property>
+            <property name="minimum">
+             <number>0</number>
+            </property>
+            <property name="maximum">
+             <number>127</number>
+            </property>
+            <property name="value">
+             <number>0</number>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="5">
+           <widget class="QLabel" name="label_20">
+            <property name="text">
+             <string>Channel:</string>
+            </property>
+           </widget>
+          </item>
+          <item row="5" column="2">
+           <widget class="QSpinBox" name="stop_param_spin">
+            <property name="minimumSize">
+             <size>
+              <width>64</width>
+              <height>0</height>
+             </size>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>64</width>
+              <height>16777215</height>
+             </size>
+            </property>
+            <property name="maximum">
+             <number>127</number>
+            </property>
+           </widget>
+          </item>
+          <item row="5" column="4">
+           <widget class="QSpinBox" name="stop_value_spin">
+            <property name="maximumSize">
+             <size>
+              <width>48</width>
+              <height>16777215</height>
+             </size>
+            </property>
+            <property name="minimum">
+             <number>0</number>
+            </property>
+            <property name="maximum">
+             <number>127</number>
+            </property>
+            <property name="value">
+             <number>0</number>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="1">
+           <widget class="QComboBox" name="enable_combo">
+            <item>
+             <property name="text">
+              <string>CTRL parameter</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>Note ON</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>Note OFF</string>
+             </property>
+            </item>
+           </widget>
+          </item>
+          <item row="4" column="2">
+           <widget class="QSpinBox" name="disable_param_spin">
+            <property name="minimumSize">
+             <size>
+              <width>64</width>
+              <height>0</height>
+             </size>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>64</width>
+              <height>16777215</height>
+             </size>
+            </property>
+            <property name="maximum">
+             <number>127</number>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="6">
+           <widget class="QSpinBox" name="enable_chan_spin">
+            <property name="specialValueText">
+             <string>Any</string>
+            </property>
+            <property name="maximum">
+             <number>16</number>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="0" colspan="7">
+           <widget class="QCheckBox" name="toggle_mode_chk">
+            <property name="toolTip">
+             <string>If enabled, uses the &quot;Enable&quot; event to toggle between enabled and disabled state. If a loop is currently playing, it will be stopped.</string>
+            </property>
+            <property name="text">
+             <string>Toggle mode</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="0" colspan="7">
+           <widget class="Line" name="line">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="0" colspan="7">
+           <layout class="QHBoxLayout" name="horizontalLayout_2">
+            <item>
+             <widget class="QCheckBox" name="ctrl_auto_connect_chk">
+              <property name="text">
+               <string>Auto connect</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QLineEdit" name="ctrl_auto_connect_edit">
+              <property name="enabled">
+               <bool>false</bool>
+              </property>
+              <property name="toolTip">
+               <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Type ports MOL will try to automatically connect to.&lt;br/&gt;The complete format is &lt;span style=&quot; font-weight:600;&quot;&gt;client&lt;/span&gt;:&lt;span style=&quot; font-weight:600;&quot;&gt;port&lt;/span&gt;, wheter as string or as numbers. For example:&lt;/p&gt;&lt;ul&gt;&lt;li&gt;USB MIDI interface:USB MIDI Port 1&lt;/li&gt;&lt;li&gt;20:0&lt;/li&gt;&lt;/ul&gt;&lt;p&gt;Pattern search works using regular expressions, the string &amp;quot;USB MIDI.*1&amp;quot; will connect to every port with client name beginning with &amp;quot;USB MIDI&amp;quot; and port name ending with &amp;quot;1&amp;quot;.&lt;/p&gt;&lt;p&gt;Multiple ports can be specified, separated by a comma.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+          <item row="4" column="6">
+           <widget class="QSpinBox" name="disable_chan_spin">
+            <property name="specialValueText">
+             <string>Any</string>
+            </property>
+            <property name="maximum">
+             <number>16</number>
+            </property>
+           </widget>
+          </item>
+          <item row="5" column="6">
+           <widget class="QSpinBox" name="stop_chan_spin">
+            <property name="specialValueText">
+             <string>Any</string>
+            </property>
+            <property name="maximum">
+             <number>16</number>
+            </property>
+           </widget>
+          </item>
+          <item row="4" column="5">
+           <widget class="QLabel" name="label_21">
+            <property name="text">
+             <string>Channel:</string>
+            </property>
+           </widget>
+          </item>
+          <item row="5" column="5">
+           <widget class="QLabel" name="label_22">
+            <property name="text">
+             <string>Channel:</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item row="1" column="0">
+        <widget class="QGroupBox" name="groupBox_5">
+         <property name="title">
+          <string>Feedback</string>
+         </property>
+         <layout class="QGridLayout" name="gridLayout_9">
+          <item row="8" column="0">
+           <widget class="QPushButton" name="fb_disable_down_btn">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>20</width>
+              <height>20</height>
+             </size>
+            </property>
+            <property name="text">
+             <string>▼</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="0" colspan="3">
+           <widget class="Line" name="line_3">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="0" colspan="3">
+           <layout class="QHBoxLayout" name="horizontalLayout">
+            <item>
+             <widget class="QCheckBox" name="fb_auto_connect_chk">
+              <property name="text">
+               <string>Auto connect</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QLineEdit" name="fb_auto_connect_edit">
+              <property name="enabled">
+               <bool>false</bool>
+              </property>
+              <property name="toolTip">
+               <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Type ports MOL will try to automatically connect to.&lt;br/&gt;The complete format is &lt;span style=&quot; font-weight:600;&quot;&gt;client&lt;/span&gt;:&lt;span style=&quot; font-weight:600;&quot;&gt;port&lt;/span&gt;, wheter as string or as numbers. For example:&lt;/p&gt;&lt;ul&gt;&lt;li&gt;USB MIDI interface:USB MIDI Port 1&lt;/li&gt;&lt;li&gt;20:0&lt;/li&gt;&lt;/ul&gt;&lt;p&gt;Pattern search works using regular expressions, the string &amp;quot;USB MIDI.*1&amp;quot; will connect to every port with client name beginning with &amp;quot;USB MIDI&amp;quot; and port name ending with &amp;quot;1&amp;quot;.&lt;/p&gt;&lt;p&gt;Multiple ports can be specified, separated by a comma.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+          <item row="5" column="0" colspan="3">
+           <spacer name="verticalSpacer">
+            <property name="orientation">
+             <enum>Qt::Vertical</enum>
+            </property>
+            <property name="sizeType">
+             <enum>QSizePolicy::Fixed</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>20</width>
+              <height>4</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+          <item row="6" column="0" colspan="2">
+           <widget class="QLabel" name="label_17">
+            <property name="text">
+             <string>Events that will be sent when disabling MOL</string>
+            </property>
+           </widget>
+          </item>
+          <item row="11" column="2">
+           <widget class="QPushButton" name="fb_stop_add_btn">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>20</width>
+              <height>20</height>
+             </size>
+            </property>
+            <property name="text">
+             <string>+</string>
+            </property>
+           </widget>
+          </item>
+          <item row="10" column="0" colspan="2">
+           <widget class="QLabel" name="label_18">
+            <property name="text">
+             <string>Events that will be sent when stopping MOL</string>
+            </property>
+           </widget>
+          </item>
+          <item row="7" column="1" rowspan="2">
+           <widget class="QTableView" name="fb_disable_table">
+            <attribute name="verticalHeaderVisible">
+             <bool>false</bool>
+            </attribute>
+           </widget>
+          </item>
+          <item row="2" column="0" colspan="2">
+           <widget class="QLabel" name="label_15">
+            <property name="text">
+             <string>Events that will be sent when enabling MOL</string>
+            </property>
+           </widget>
+          </item>
+          <item row="15" column="1" rowspan="2">
+           <widget class="QTableView" name="fb_play_table">
+            <attribute name="verticalHeaderVisible">
+             <bool>false</bool>
+            </attribute>
+           </widget>
+          </item>
+          <item row="3" column="2">
+           <widget class="QPushButton" name="fb_enable_add_btn">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>20</width>
+              <height>20</height>
+             </size>
+            </property>
+            <property name="text">
+             <string>+</string>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="1" rowspan="2">
+           <widget class="QTableView" name="fb_enable_table">
+            <attribute name="verticalHeaderVisible">
+             <bool>false</bool>
+            </attribute>
+           </widget>
+          </item>
+          <item row="15" column="2">
+           <widget class="QPushButton" name="fb_play_add_btn">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>20</width>
+              <height>20</height>
+             </size>
+            </property>
+            <property name="text">
+             <string>+</string>
+            </property>
+           </widget>
+          </item>
+          <item row="11" column="1" rowspan="2">
+           <widget class="QTableView" name="fb_stop_table">
+            <attribute name="verticalHeaderVisible">
+             <bool>false</bool>
+            </attribute>
+           </widget>
+          </item>
+          <item row="12" column="2">
+           <widget class="QPushButton" name="fb_stop_del_btn">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>20</width>
+              <height>20</height>
+             </size>
+            </property>
+            <property name="text">
+             <string>-</string>
+            </property>
+           </widget>
+          </item>
+          <item row="16" column="2">
+           <widget class="QPushButton" name="fb_play_del_btn">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>20</width>
+              <height>20</height>
+             </size>
+            </property>
+            <property name="text">
+             <string>-</string>
+            </property>
+           </widget>
+          </item>
+          <item row="4" column="2">
+           <widget class="QPushButton" name="fb_enable_del_btn">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>20</width>
+              <height>20</height>
+             </size>
+            </property>
+            <property name="text">
+             <string>-</string>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="0">
+           <widget class="QPushButton" name="fb_enable_up_btn">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>20</width>
+              <height>20</height>
+             </size>
+            </property>
+            <property name="text">
+             <string>▲</string>
+            </property>
+           </widget>
+          </item>
+          <item row="7" column="2">
+           <widget class="QPushButton" name="fb_disable_add_btn">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>20</width>
+              <height>20</height>
+             </size>
+            </property>
+            <property name="text">
+             <string>+</string>
+            </property>
+           </widget>
+          </item>
+          <item row="8" column="2">
+           <widget class="QPushButton" name="fb_disable_del_btn">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>20</width>
+              <height>20</height>
+             </size>
+            </property>
+            <property name="text">
+             <string>-</string>
+            </property>
+           </widget>
+          </item>
+          <item row="11" column="0">
+           <widget class="QPushButton" name="fb_stop_up_btn">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>20</width>
+              <height>20</height>
+             </size>
+            </property>
+            <property name="text">
+             <string>▲</string>
+            </property>
+           </widget>
+          </item>
+          <item row="4" column="0">
+           <widget class="QPushButton" name="fb_enable_down_btn">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>20</width>
+              <height>20</height>
+             </size>
+            </property>
+            <property name="text">
+             <string>▼</string>
+            </property>
+           </widget>
+          </item>
+          <item row="12" column="0">
+           <widget class="QPushButton" name="fb_stop_down_btn">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>20</width>
+              <height>20</height>
+             </size>
+            </property>
+            <property name="text">
+             <string>▼</string>
+            </property>
+           </widget>
+          </item>
+          <item row="14" column="0" colspan="2">
+           <widget class="QLabel" name="label_19">
+            <property name="text">
+             <string>Events that will be sent when a loop starts</string>
+            </property>
+           </widget>
+          </item>
+          <item row="7" column="0">
+           <widget class="QPushButton" name="fb_disable_up_btn">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>20</width>
+              <height>20</height>
+             </size>
+            </property>
+            <property name="text">
+             <string>▲</string>
+            </property>
+           </widget>
+          </item>
+          <item row="15" column="0">
+           <widget class="QPushButton" name="fb_play_up_btn">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>20</width>
+              <height>20</height>
+             </size>
+            </property>
+            <property name="text">
+             <string>▲</string>
+            </property>
+           </widget>
+          </item>
+          <item row="16" column="0">
+           <widget class="QPushButton" name="fb_play_down_btn">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>20</width>
+              <height>20</height>
+             </size>
+            </property>
+            <property name="text">
+             <string>▼</string>
+            </property>
+           </widget>
+          </item>
+          <item row="9" column="0" colspan="3">
+           <spacer name="verticalSpacer_2">
+            <property name="orientation">
+             <enum>Qt::Vertical</enum>
+            </property>
+            <property name="sizeType">
+             <enum>QSizePolicy::Fixed</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>20</width>
+              <height>4</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+          <item row="13" column="0" colspan="3">
+           <spacer name="verticalSpacer_5">
+            <property name="orientation">
+             <enum>Qt::Vertical</enum>
+            </property>
+            <property name="sizeType">
+             <enum>QSizePolicy::Fixed</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>20</width>
+              <height>4</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+         </layout>
+        </widget>
+       </item>
+      </layout>
+     </widget>
     </widget>
    </item>
   </layout>
@@ -642,9 +1400,7 @@ It is usually good enough to leave only Note On events, because Note Off events 
   <tabstop>startup_chk</tabstop>
   <tabstop>last_event_limit_spin</tabstop>
   <tabstop>max_size_spin</tabstop>
-  <tabstop>ctrl_auto_connect_chk</tabstop>
-  <tabstop>ctrl_auto_connect_edit</tabstop>
-  <tabstop>toggle_chk</tabstop>
+  <tabstop>toggle_mode_chk</tabstop>
   <tabstop>enable_combo</tabstop>
   <tabstop>enable_param_spin</tabstop>
   <tabstop>enable_value_spin</tabstop>

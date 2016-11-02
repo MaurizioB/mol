@@ -62,7 +62,8 @@ Controllers = {
                 61: 'LSB for Controller 29',
                 62: 'LSB for Controller 30',
                 63: 'LSB for Controller 31',
-                64: 'Damper Pedal (Sustain) [Data Byte of 0-63=0ff, 64-127=On]',
+#                64: 'Damper Pedal (Sustain) [Data Byte of 0-63=0ff, 64-127=On]',
+                64: 'Damper Pedal (Sustain)',
                 65: 'Portamento',
                 66: 'Sostenuto',
                 67: 'Soft Pedal',
@@ -256,6 +257,7 @@ def _get_jack_event_type(value):
 _note_names = {0: 'c', 1: 'c#', 2: 'd', 3: 'd#', 4: 'e', 5: 'f', 6: 'f#', 7: 'g', 8: 'g#', 9: 'a', 10: 'a#', 11: 'b',}
 def get_note_name(id):
     return _note_names[id%12]
+NoteNames = {id:'{}{}'.format(_note_names[id%12], id//12) for id in range(128)}
 
 WhiteKeys = []
 BlackKeys = []
@@ -279,8 +281,8 @@ class MidiEvent(object):
         self.backend = backend
         if event:
             self._event = event
-            self.source = map(int, event.source)
-            self.dest = map(int, event.dest)
+            self.source = tuple(map(int, event.source))
+            self.dest = tuple(map(int, event.dest))
             self.port = self.dest[1]
             self.queue = event.queue
             self._type = _event_type_alsa[int(event.type)]
@@ -404,7 +406,13 @@ class MidiEvent(object):
 
     @property
     def sysex(self):
-        return self._sysex
+        try:
+            if isinstance(self._sysex, str):
+                self._sysex = [int(byte, 16) for byte in self._sysex.split()]
+            [hex(byte) for byte in self._sysex]
+            return self._sysex
+        except:
+            raise ValueError('String {} is not a valid SysEx string'.format(self._sysex))
 
     @sysex.setter
     def sysex(self, sysex):
@@ -431,7 +439,7 @@ class MidiEvent(object):
                 data = {'control.channel': self.channel, 'control.value': self.data2}
                 self._event.set_data(data)
             elif self._type == SYSEX:
-                data = {'ext': self._sysex}
+                data = {'ext': self.sysex}
                 self._event.set_data(data)
             elif self._type == SYSTEM:
                 data = {'result.event': self.data1, 'result.result': self.data2}
@@ -439,6 +447,8 @@ class MidiEvent(object):
             elif self._type in [SYSRT_START, SYSRT_CONTINUE, SYSRT_STOP]:
                 data = {'queue.queue': self.queue}
                 self._event.set_data(data)
+            if self.source:
+                self._event.source = tuple(self.source)
         return self._event
 
 
@@ -493,7 +503,7 @@ class MidiEvent(object):
     def __repr__(self):
         return self.__rstr[self.type].format(cls=self.__tstr[self._type],
                                   p=self.port, c=self.channel,
-                                  d1=self.data1, d2=self.data2, x=self.sysex)
+                                  d1=self.data1, d2=self.data2, x=self.sysex if self._sysex else '')
 
 class NoteOnEvent(MidiEvent):
     def __new__(self, port, channel, note, velocity):

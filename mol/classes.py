@@ -3,11 +3,37 @@
 from threading import Lock
 from collections import namedtuple, deque
 from itertools import islice
-from PyQt4 import QtCore
+from PyQt4 import QtGui, QtCore
 from midiutils import *
 
 MidiSource = namedtuple('MidiSource', 'client port')
 PatternData = namedtuple('PatternData', 'time vel source')
+RemoteCtrlEvent = namedtuple('RemoteCtrlEvent', 'event_type param value channel')
+#accept CtrlEvent with only event_type and param too
+RemoteCtrlEvent.__new__.__defaults__ = (None, None)
+
+EventRole = QtCore.Qt.UserRole + 1
+EventIdRole = EventRole + 1
+IdRole = EventIdRole
+DefaultRole = EventIdRole + 1
+TriggerRole = DefaultRole + 1
+RecordRole = TriggerRole + 1
+IgnoreRole = RecordRole + 1
+
+NameRole = QtCore.Qt.UserRole + 10
+ClientRole = NameRole + 1
+PortRole = ClientRole + 1
+
+SysExRole = QtCore.Qt.UserRole + 20
+
+event_model = []
+event_model_dict = {}
+for i, (s, e) in enumerate([('Ctrl', CTRL), ('Note On', NOTEON), ('Note Off', NOTEOFF), ('SysEx', SYSEX)]):
+    item = QtGui.QStandardItem(s)
+    item.setData(e, EventRole)
+    item.setData(i, EventIdRole)
+    event_model.append(item)
+    event_model_dict[e] = item
 
 
 class deque2(deque):
@@ -64,13 +90,12 @@ class MidiBuffer(QtCore.QObject):
         self.other_data = []
         self.main_types = trigger_types
         self.time_threshold = time_threshold
-#        self.ignored_types = ignored_types
         self.lock = Lock()
         self.watch_id = None
         self.pattern = []
+        self.noteoff = {}
+        self.last_note = None
         self.pattern_data = []
-        self.pattern_repeat = []
-        self.pattern_repeat_data = []
         self.pattern_set = False
         self.repeats = 1
         self.max_repeats = 3
@@ -100,21 +125,21 @@ class MidiBuffer(QtCore.QObject):
         self.vel_data.append(vel)
         self.rev_vel_data.appendleft(vel)
         self.source_data.append(source)
-        print 'note_data: {}'.format([get_note_name(n) for n in self.note_data])
+#        print 'note_data: {}'.format([get_note_name(n) for n in self.note_data])
         if note not in self.note_data:
             return
         pattern_range = None
         for i in xrange(1, len(self.note_data)/2):
             prev_note_data = self.rev_note_data[:i]
-            print 'searching pattern: {}'.format(list(reversed(prev_note_data)))
+#            print 'searching pattern: {}'.format(list(reversed(prev_note_data)))
             for j in xrange(1, 3):
                 pattern_range = (i*j, i*(j+1))
                 new_note_data = self.rev_note_data[pattern_range[0]:pattern_range[1]]
-                print 'searching with indexes [{}:{}]: {}'.format(i*j, i*(j+1), new_note_data)
+#                print 'searching with indexes [{}:{}]: {}'.format(i*j, i*(j+1), new_note_data)
                 if prev_note_data == new_note_data:
-                    print 'coincide, controllo i tempi'
+#                    print 'coincide, controllo i tempi'
                     if j > 1:
-                        print [int(h) for h in self.rev_time_data]
+#                        print [int(h) for h in self.rev_time_data]
                         last_prev_time = self.rev_time_data[0]
                         pattern_prev_time = self.rev_time_data[i]
                         orig_prev_time = self.rev_time_data[i*2]
@@ -126,7 +151,7 @@ class MidiBuffer(QtCore.QObject):
                             if abs(delta2-delta1) < self.time_threshold:
                                 last_prev_time = last_next_time
                             else:
-                                print 'timing non coincide'
+#                                print 'timing non coincide'
                                 break
                             orig_next_time = self.rev_time_data[t+(i*2)]
                             delta3 = orig_prev_time-orig_next_time
@@ -134,25 +159,30 @@ class MidiBuffer(QtCore.QObject):
                                 pattern_prev_time = pattern_next_time
                                 orig_prev_time = orig_next_time
                             else:
-                                print 'timing non coincide'
+#                                print 'timing non coincide'
                                 break
                         else:
                             prev_note_data = new_note_data
                             continue
-                        print 'non ok?'
                         break
                     prev_note_data = new_note_data
                 else:
-                    print 'non coincide'
+#                    print 'non coincide'
                     break
             else:
                 #pattern trovato!
                 break
         else:
-            print 'pattern non trovato'
+#            print 'pattern non trovato'
             return
-        print 'pattern trovato!!!'
-        self.pattern_finalize(pattern_range[1]-pattern_range[0])
+#        print 'pattern trovato!!!'
+        pattern_length = pattern_range[1]-pattern_range[0]
+        delta2 = self.rev_time_data[pattern_length-1]-self.rev_time_data[pattern_length]
+        delta1 = self.rev_time_data[pattern_length*2-1]-self.rev_time_data[pattern_length*2]
+        if abs(delta1-delta2) > self.time_threshold:
+#            print 'pattern non ripetuti con lo stesso intervallo!'
+            return
+        self.pattern_finalize(pattern_length)
 
 
     def pattern_finalize(self, length):
@@ -160,8 +190,8 @@ class MidiBuffer(QtCore.QObject):
         self.pattern_data = self.main_data[-length:]
         time_base = self.main_data[-length-1].time
         self.length = self.pattern_data[-1].time-time_base
-        time_start = self.pattern_data[0].time
-        time_last = self.pattern_data[-1].time
+#        time_start = self.pattern_data[0].time
+#        time_last = self.pattern_data[-1].time
 
         for data in self.pattern_data:
             data.set_timer(time_base)
@@ -172,12 +202,21 @@ class MidiBuffer(QtCore.QObject):
         self.timer = QtCore.QTimer()
         self.timer.setInterval(max([e.timer.interval() for e in self.pattern_data])+1)
         self.timer.timeout.connect(self.start_event_timers)
-        self.start()
+        for data in self.pattern_data:
+            if data.event.type == NOTEON:
+                if data.event.velocity != 0:
+                    data.play.connect(self.last_noteon_update)
+                else:
+                    data.play.connect(self.last_noteoff_update)
+            elif data.event.type == NOTEOFF:
+                data.play.connect(self.last_noteoff_update)
+        #TODO verifica l'ordine
         self.pattern_created.emit(self.pattern_data)
+        self.start()
+        self.create_stop_notes()
 
 
     def start_event_timers(self):
-#        print 'setto data timers'
         for data in self.pattern_data:
             data.timer.start()
 
@@ -188,7 +227,49 @@ class MidiBuffer(QtCore.QObject):
     def stop(self):
         for data in self.pattern_data:
             data.timer.stop()
+            data.play.disconnect()
+        return self.stop_notes()
 
+    def create_stop_notes(self):
+        first_note = self.pattern_data[0].time
+        self.pattern_data_ordered = sorted(self.pattern_data, key=lambda m: m.time if m.time >= first_note else m.time+first_note)
+        pattern_rev = reversed(self.pattern_data_ordered)
+        for i, data in enumerate(self.pattern_data_ordered):
+            event = data.event
+            if event.type == NOTEON and not event.velocity == 0:
+                for d in self.pattern_data_ordered[i+1:]:
+                    if d.event.type != NOTEOFF and not (d.event.type == NOTEON and d.event.velocity == 0) and not d.event.data1 == event.data1 and not d.event.source == event.source:
+                        continue
+                    self.noteoff[(tuple(data.event.source), data.event.channel, data.event.data1)] = False
+                continue
+                for d in pattern_rev[i+1:]:
+                    if d.event.type != NOTEOFF and not (d.event.type == NOTEON and d.event.velocity == 0) and not d.event.data1 == event.data1 and not d.event.source == event.source:
+                        continue
+                    self.noteoff[(tuple(data.event.source), data.event.channel, data.event.data1)] = False
+
+    def last_noteon_update(self, event):
+        if (tuple(event.source), event.channel, event.data1) in self.noteoff:
+            self.noteoff[(tuple(event.source), event.channel, event.data1)] = True
+            self.last_note = event.data1
+
+    def last_noteoff_update(self, event):
+        if (tuple(event.source), event.channel, event.data1) in self.noteoff:
+            self.noteoff[(tuple(event.source), event.channel, event.data1)] = False
+
+    def stop_notes(self):
+        note_list = []
+        sources = set()
+        for (source, channel, data1), active in self.noteoff.items():
+            sources.add(source)
+            if active:
+                note_list.append(MidiEvent(NOTEOFF, source=source, channel=channel, data1=data1))
+        if note_list:
+            return note_list, sources
+        else:
+            return [], sources
+
+    def __len__(self):
+        return len(self.main_data)
 
 
 
