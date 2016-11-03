@@ -1041,7 +1041,7 @@ class Looper(QtCore.QObject):
     def new_alsa_port(self, port):
         if not port.is_output or alsaseq.SEQ_PORT_CAP_NO_EXPORT in port.caps: return
         if self.ctrl_auto_connect and not self.single_input:
-            ports_re = re.compile(self.ctrl_auto_connect)
+            ports_re = re.compile(self.ctrl_auto_connect.replace(',', '|'))
             match = ports_re.match('{}:{}'.format(port.client.name, port.name))
             if match is not None:
                 try:

@@ -938,8 +938,10 @@ class Graph(QtCore.QObject):
                     self.connections[conn.dest].remove(conn)
                     del conn
             return self.connections[port]
+        except KeyError:
+            return None
         except Exception as err:
-            print err
+            print 'Unknown exception ({}): {}'.format(type(err), err)
             return None
 
 
