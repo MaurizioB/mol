@@ -356,9 +356,7 @@ class SettingsDialog(QtGui.QDialog):
                 model = index.model()
                 ev_type = model.itemFromIndex(model.index(self.index.row(), 0)).data(EventRole).toPyObject()
                 if ev_type == SYSEX:
-                    lineedit = SysExEditor(parent, index.data(SysExRole).toPyObject())
-#                    lineedit.setText(index.data(SysExRole).toPyObject())
-                    return lineedit
+                    return SysExEditor(parent, index.data(SysExRole).toPyObject())
                 combo = QtGui.QComboBox(parent)
                 if ev_type == CTRL:
                     combo.addItems(['{} - {}'.format(id, Controllers[id]) for id in sorted(Controllers.keys())])
@@ -526,6 +524,8 @@ class SettingsDialog(QtGui.QDialog):
                     data1_item.setData(data1, IdRole)
                     data2_item = QtGui.QStandardItem(str(data2))
                     data2_item.setData(data2, IdRole)
+                chan_item.setTextAlignment(QtCore.Qt.AlignHCenter|QtCore.Qt.AlignCenter)
+                data2_item.setTextAlignment(QtCore.Qt.AlignHCenter|QtCore.Qt.AlignCenter)
                 model.appendRow([ev_item, chan_item, data1_item, data2_item])
             setattr(self, 'fb_{}_model'.format(action), model)
             table.setModel(model)
@@ -675,6 +675,8 @@ class SettingsDialog(QtGui.QDialog):
                 data1_item.setData(data1, IdRole)
                 data2_item = QtGui.QStandardItem(str(data2))
                 data2_item.setData(data2, IdRole)
+            chan_item.setTextAlignment(QtCore.Qt.AlignHCenter|QtCore.Qt.AlignCenter)
+            data2_item.setTextAlignment(QtCore.Qt.AlignHCenter|QtCore.Qt.AlignCenter)
             self.stop_events_model.appendRow([ev_item, chan_item, data1_item, data2_item])
 
 
