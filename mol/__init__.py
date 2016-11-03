@@ -896,6 +896,7 @@ class Looper(QtCore.QObject):
     def create_stop_events(self, stop_events):
         self.stop_events = []
         self.stop_events_raw = []
+        if stop_events is None: return
         for event in stop_events:
             event_type = eval(event[0])
             if event_type == SYSEX:
