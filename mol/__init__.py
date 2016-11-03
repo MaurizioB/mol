@@ -1285,7 +1285,7 @@ class Looper(QtCore.QObject):
         self.settings.setValue('stop_events', stop_events)
 
         if dialog.ctrl_auto_connect_chk.isChecked():
-            ctrl_auto_connect = str(dialog.ctrl_auto_connect_edit.text())
+            ctrl_auto_connect = str(dialog.ctrl_auto_connect_edit.text()).strip(',')
         else:
             ctrl_auto_connect = None
         if ctrl_auto_connect:
@@ -1305,7 +1305,7 @@ class Looper(QtCore.QObject):
         self.create_ctrl_events()
 
         if dialog.fb_auto_connect_chk.isChecked():
-            fb_auto_connect = str(dialog.fb_auto_connect_edit.text())
+            fb_auto_connect = str(dialog.fb_auto_connect_edit.text()).strip(',')
         else:
             fb_auto_connect = None
         if fb_auto_connect:
