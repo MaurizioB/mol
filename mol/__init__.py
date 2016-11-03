@@ -17,6 +17,7 @@ CONNECT_SW, CONNECT_HW, CONNECT_ALL = range(1, 4)
 defaults = {
             'startup_enable': False, 
             'last_event_limit': 5, 
+            'ignore_doublenote': True, 
             'stop_events': [('CTRL', 123, 0), ('CTRL', 64, 0)], 
             'stop_notes': True, 
             'toggle_mode': False, 
@@ -405,6 +406,7 @@ class SettingsDialog(QtGui.QDialog):
         self.startup_chk.setChecked(self.settings.value('startup_enable', defaults['startup_enable']).toBool())
         self.last_event_limit_spin.setValue(self.main.last_event_limit)
         self.max_size_spin.setValue(self.main.max_size)
+        self.ignore_doublenote_chk.setChecked(self.main.ignore_doublenote)
 
         self.auto_connect = self.main.auto_connect
         auto_connect_btns = [self.auto_connect_custom_radio, self.auto_connect_sw_radio, self.auto_connect_hw_radio, self.auto_connect_all_radio]
@@ -476,27 +478,6 @@ class SettingsDialog(QtGui.QDialog):
 
         self.stop_events_model = QtGui.QStandardItemModel(self)
         self.stop_events_model.setHorizontalHeaderLabels(['Event type', 'Channel', 'Parameter', 'Value'])
-        for ev_type, data1, data2, chan in self.main.stop_events_raw:
-            ev_type = eval(ev_type)
-            ev_item = event_model_dict[ev_type].clone()
-            if ev_type == SYSEX:
-                chan_item = QtGui.QStandardItem()
-                chan_item.setData(0, IdRole)
-                chan_item.setEnabled(False)
-                data1_item = QtGui.QStandardItem(' '.join(['{:02X}'.format(v) for v in data1]))
-                data1_item.setData(0, IdRole)
-                data1_item.setData(data1, SysExRole)
-                data2_item = QtGui.QStandardItem()
-                data2_item.setData(0, IdRole)
-                data2_item.setEnabled(False)
-            else:
-                chan_item = QtGui.QStandardItem('{}'.format(chan+1 if chan >= 0 else 'All'))
-                chan_item.setData(chan, IdRole)
-                data1_item = QtGui.QStandardItem('{} - {}'.format(data1, Controllers[data1] if ev_type==CTRL else NoteNames[data1].title()))
-                data1_item.setData(data1, IdRole)
-                data2_item = QtGui.QStandardItem(str(data2))
-                data2_item.setData(data2, IdRole)
-            self.stop_events_model.appendRow([ev_item, chan_item, data1_item, data2_item])
         self.stop_events_table.setModel(self.stop_events_model)
         self.stop_events_table.resizeColumnsToContents()
         self.stop_events_table.horizontalHeader().setResizeMode(0, QtGui.QHeaderView.Stretch)
@@ -512,6 +493,7 @@ class SettingsDialog(QtGui.QDialog):
         self.stop_events_down_btn.clicked.connect(lambda state, table=self.stop_events_table: self.fb_down(table))
         self.stop_events_add_btn.clicked.connect(lambda state, table=self.stop_events_table: self.fb_add(table))
         self.stop_events_del_btn.clicked.connect(lambda state, table=self.stop_events_table: self.fb_del(table))
+        self.create_stop_events(self.main.stop_events_raw)
 
 
         self.fb_auto_connect_chk.toggled.connect(lambda state: self.fb_auto_connect_edit.setEnabled(state))
@@ -545,7 +527,7 @@ class SettingsDialog(QtGui.QDialog):
                     data2_item = QtGui.QStandardItem(str(data2))
                     data2_item.setData(data2, IdRole)
                 model.appendRow([ev_item, chan_item, data1_item, data2_item])
-            setattr(self, 'fb_{}_model', model)
+            setattr(self, 'fb_{}_model'.format(action), model)
             table.setModel(model)
             table.resizeColumnsToContents()
             table.horizontalHeader().setResizeMode(0, QtGui.QHeaderView.Stretch)
@@ -597,6 +579,15 @@ class SettingsDialog(QtGui.QDialog):
         self.startup_chk.setChecked(defaults['startup_enable'])
         self.last_event_limit_spin.setValue(defaults['last_event_limit'])
         self.max_size_spin.setValue(defaults['max_size'])
+        self.ignore_doublenote_chk.setChecked(defaults['ignore_doublenote'])
+        self.auto_connect_group.button(defaults['auto_connect']).setChecked(True)
+        self.clear_model(self.auto_connect_model)
+        self.clear_model(self.blacklist_model)
+#        for i in range(self.auto_connect_model.rowCount()):
+#            self.auto_connect_model.takeRow(0)
+#        for i in range(self.blacklist_model.rowCount()):
+#            self.blacklist_model.takeRow(0)
+
         self.time_threshold_spin.setValue(defaults['time_threshold'])
         event_dict = {}
         for model in [self.trigger_model, self.record_model, self.ignore_model]:
@@ -607,6 +598,19 @@ class SettingsDialog(QtGui.QDialog):
         for ev_types, model in targets:
             for ev_type in ev_types:
                 model.appendRow(event_dict[ev_type])
+
+        self.stop_notes_chk.setChecked(defaults['stop_notes'])
+        stop_events = []
+        self.clear_model(self.stop_events_model)
+        for event in defaults['stop_events']:
+            if len(event) == 2:
+                stop_events.append(event+(None, None))
+            elif len(event) == 3:
+                stop_events.append(event+(-1, ))
+            else:
+                stop_events.append(event)
+        self.create_stop_events(stop_events)
+
         self.ctrl_auto_connect_edit.setText('')
         self.ctrl_auto_connect_chk.setChecked(False)
         self.toggle_mode_chk.setChecked(defaults['toggle_mode'])
@@ -620,6 +624,17 @@ class SettingsDialog(QtGui.QDialog):
             combo.setCurrentIndex(t)
             param.setValue(p)
             value.setValue(v)
+
+        self.fb_auto_connect_chk.setChecked(False)
+        self.fb_auto_connect_edit.setText('')
+        for action in ['enable', 'disable', 'stop', 'play']:
+            self.clear_model(getattr(self, 'fb_{}_model'.format(action)))
+
+
+    def clear_model(self, model):
+        for i in range(model.rowCount()):
+            model.takeRow(0)
+
 
     def create_event_types(self):
         self.trigger_model = QtGui.QStandardItemModel()
@@ -638,6 +653,30 @@ class SettingsDialog(QtGui.QDialog):
             item.setData(True if ev_type in trigger_allowed else False, TriggerRole)
             item.setData(True if ev_type in record_allowed else False, RecordRole)
             view_dict[self.event_filter[ev_type]].appendRow(item)
+
+    def create_stop_events(self, raw_list):
+        for ev_type, data1, data2, chan in raw_list:
+            ev_type = eval(ev_type)
+            ev_item = event_model_dict[ev_type].clone()
+            if ev_type == SYSEX:
+                chan_item = QtGui.QStandardItem()
+                chan_item.setData(0, IdRole)
+                chan_item.setEnabled(False)
+                data1_item = QtGui.QStandardItem(' '.join(['{:02X}'.format(v) for v in data1]))
+                data1_item.setData(0, IdRole)
+                data1_item.setData(data1, SysExRole)
+                data2_item = QtGui.QStandardItem()
+                data2_item.setData(0, IdRole)
+                data2_item.setEnabled(False)
+            else:
+                chan_item = QtGui.QStandardItem('{}'.format(chan+1 if chan >= 0 else 'All'))
+                chan_item.setData(chan, IdRole)
+                data1_item = QtGui.QStandardItem('{} - {}'.format(data1, Controllers[data1] if ev_type==CTRL else NoteNames[data1].title()))
+                data1_item.setData(data1, IdRole)
+                data2_item = QtGui.QStandardItem(str(data2))
+                data2_item.setData(data2, IdRole)
+            self.stop_events_model.appendRow([ev_item, chan_item, data1_item, data2_item])
+
 
     def toggle_pairing(self, value=None, force=False):
         if not force and not self.toggle_mode_chk.isChecked(): return
@@ -770,6 +809,7 @@ class Looper(QtCore.QObject):
         self.enabled = self.settings.value('startup_enable', defaults['startup_enable']).toBool()
         self.last_event_limit = int(self.settings.value('last_event_limit', defaults['last_event_limit']).toPyObject())
         self.max_size = int(self.settings.value('max_size', defaults['max_size']).toPyObject())
+        self.ignore_doublenote = self.settings.value('ignore_doublenote', defaults['ignore_doublenote']).toBool()
 #        self.minimum_time = self.settings.value('minimum_time', defaults['minimum_time']).toPyObject()
 
         self.blacklist = self.settings.value('blacklist', []).toPyObject()
@@ -846,7 +886,7 @@ class Looper(QtCore.QObject):
         self.icon_timer.setSingleShot(True)
 #        self.icon_timer.timeout.connect(self.icon_set)
 
-        self.event_buffer = MidiBuffer(self.max_size*3, self.event_filter_mode[TRIGGER], self.time_threshold)
+        self.event_buffer = MidiBuffer(self.max_size*3, self.event_filter_mode[TRIGGER], self.time_threshold, self.ignore_doublenote)
         self.event_buffer.pattern_created.connect(self.play)
 
 #        self.show_settings()
@@ -1076,7 +1116,7 @@ class Looper(QtCore.QObject):
     def clear_buffer(self):
         self.event_buffer.pattern_created.disconnect()
         self.event_buffer.deleteLater()
-        self.event_buffer = MidiBuffer(self.max_size*3, self.event_filter_mode[TRIGGER], self.time_threshold)
+        self.event_buffer = MidiBuffer(self.max_size*3, self.event_filter_mode[TRIGGER], self.time_threshold, self.ignore_doublenote)
         self.event_buffer.pattern_created.connect(self.play)
         self.pattern = None
 
@@ -1193,6 +1233,8 @@ class Looper(QtCore.QObject):
         self.last_event_limit = dialog.last_event_limit_spin.value()
         self.settings.setValue('last_event_limit', self.last_event_limit)
         self.max_size = dialog.max_size_spin.value()
+        self.ignore_doublenote = dialog.ignore_doublenote_chk.isChecked()
+        self.settings.setValue('ignore_doublenote', self.ignore_doublenote)
 
         auto_connect = dialog.auto_connect_group.checkedId()
         if auto_connect & 3:

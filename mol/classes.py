@@ -76,7 +76,7 @@ class MidiData(QtCore.QObject):
 
 class MidiBuffer(QtCore.QObject):
     pattern_created = QtCore.pyqtSignal(object)
-    def __init__(self, max_size=64, trigger_types=(NOTEON, ), time_threshold=100):
+    def __init__(self, max_size=64, trigger_types=(NOTEON, ), time_threshold=100, ignore_doublenote=False):
         QtCore.QObject.__init__(self)
         self.max_size = max_size
         self.main_data = deque2([], max_size)
@@ -88,8 +88,9 @@ class MidiBuffer(QtCore.QObject):
         self.rev_vel_data = deque2([], max_size)
         self.source_data = []
         self.other_data = []
-        self.main_types = trigger_types
+        self.trigger_types = trigger_types
         self.time_threshold = time_threshold
+        self.ignore_doublenote = ignore_doublenote
         self.lock = Lock()
         self.watch_id = None
         self.pattern = []
@@ -106,7 +107,7 @@ class MidiBuffer(QtCore.QObject):
             event_type = NOTEOFF
         else:
             event_type = event.type
-        if event_type in self.main_types:
+        if event_type in self.trigger_types:
             self.lock.acquire()
             self.loop_check(event, time, source)
             self.lock.release()
@@ -127,6 +128,8 @@ class MidiBuffer(QtCore.QObject):
         self.source_data.append(source)
 #        print 'note_data: {}'.format([get_note_name(n) for n in self.note_data])
         if note not in self.note_data:
+            return
+        if len(self.note_data) > 1 and self.ignore_doublenote and self.note_data[-2] == note:
             return
         pattern_range = None
         for i in xrange(1, len(self.note_data)/2):

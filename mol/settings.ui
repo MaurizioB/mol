@@ -252,7 +252,7 @@
                </size>
               </property>
               <property name="toolTip">
-               <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Use this list to add stocazzo&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+               <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Use this list to add ports MOL will try to connect to when &amp;quot;&lt;span style=&quot; font-style:italic;&quot;&gt;Custom ports&lt;/span&gt;&amp;quot; mode is selected&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
               </property>
              </widget>
             </item>
@@ -333,6 +333,9 @@
                 <width>16777215</width>
                 <height>80</height>
                </size>
+              </property>
+              <property name="toolTip">
+               <string>MOL will not try to connect to devices matching this list.</string>
               </property>
              </widget>
             </item>
@@ -543,13 +546,6 @@ It is usually good enough to leave only Note On events, because Note Off events 
           <string>Base configuration</string>
          </property>
          <layout class="QGridLayout" name="gridLayout_2">
-          <item row="1" column="0">
-           <widget class="QLabel" name="label">
-            <property name="text">
-             <string>Maximum number of seconds before ignoring previous events</string>
-            </property>
-           </widget>
-          </item>
           <item row="1" column="1">
            <widget class="QSpinBox" name="last_event_limit_spin">
             <property name="maximumSize">
@@ -569,10 +565,10 @@ It is usually good enough to leave only Note On events, because Note Off events 
             </property>
            </widget>
           </item>
-          <item row="0" column="0" colspan="2">
-           <widget class="QCheckBox" name="startup_chk">
+          <item row="1" column="0">
+           <widget class="QLabel" name="label">
             <property name="text">
-             <string>Enable on startup</string>
+             <string>Maximum number of seconds before ignoring previous events</string>
             </property>
            </widget>
           </item>
@@ -580,6 +576,13 @@ It is usually good enough to leave only Note On events, because Note Off events 
            <widget class="QLabel" name="label_8">
             <property name="text">
              <string>Maximum pattern length</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="0" colspan="2">
+           <widget class="QCheckBox" name="startup_chk">
+            <property name="text">
+             <string>Enable on startup</string>
             </property>
            </widget>
           </item>
@@ -599,6 +602,13 @@ It is usually good enough to leave only Note On events, because Note Off events 
             </property>
             <property name="value">
              <number>16</number>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="0">
+           <widget class="QCheckBox" name="ignore_doublenote_chk">
+            <property name="text">
+             <string>Ignore note repetition</string>
             </property>
            </widget>
           </item>
