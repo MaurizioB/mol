@@ -345,7 +345,7 @@
                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Blacklist!&lt;/span&gt; Devices MOL will &lt;span style=&quot; font-weight:600;&quot;&gt;not&lt;/span&gt; try to connect to. This list has precedence on the &amp;quot;&lt;span style=&quot; font-style:italic;&quot;&gt;Custom ports&lt;/span&gt;&amp;quot; list.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
               </property>
               <property name="alignment">
-               <set>Qt::AlignJustify|Qt::AlignVCenter</set>
+               <set>Qt::AlignJustify|Qt::AlignTop</set>
               </property>
               <property name="wordWrap">
                <bool>true</bool>
@@ -358,7 +358,7 @@
                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Custom whitelist!&lt;/span&gt; Devices that MOL will try to connect to if &amp;quot;&lt;span style=&quot; font-style:italic;&quot;&gt;Custom ports&lt;/span&gt;&amp;quot; mode is selected.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
               </property>
               <property name="alignment">
-               <set>Qt::AlignJustify|Qt::AlignVCenter</set>
+               <set>Qt::AlignJustify|Qt::AlignTop</set>
               </property>
               <property name="wordWrap">
                <bool>true</bool>

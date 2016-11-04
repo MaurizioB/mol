@@ -837,7 +837,9 @@ class Looper(QtCore.QObject):
         QtCore.QObject.__init__(self, parent)
 
         self.settings = QtCore.QSettings()
-        self.enabled = self.settings.value('startup_enable', defaults['startup_enable']).toBool()
+        settings_exist = self.settings.value('startup_enable')
+        self.enabled = settings_exist.toBool() if not settings_exist.toPyObject() is None else defaults['startup_enable']
+        self.settings.setValue('startup_enable', self.enabled)
         self.last_event_limit = int(self.settings.value('last_event_limit', defaults['last_event_limit']).toPyObject())
         self.max_size = int(self.settings.value('max_size', defaults['max_size']).toPyObject())
         self.ignore_doublenote = self.settings.value('ignore_doublenote', defaults['ignore_doublenote']).toBool()
@@ -920,6 +922,8 @@ class Looper(QtCore.QObject):
         self.event_buffer = MidiBuffer(self.max_size*3, self.event_filter_mode[TRIGGER], self.time_threshold, self.ignore_doublenote)
         self.event_buffer.pattern_created.connect(self.play)
 
+        if settings_exist.toPyObject() is None:
+            self.show_settings()
 #        self.show_settings()
 
     def ctrl_connect(self):
