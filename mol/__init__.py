@@ -498,8 +498,10 @@ class SettingsDialog(QtGui.QDialog):
         self.stop_events_model.setHorizontalHeaderLabels(['Event type', 'Channel', 'Parameter', 'Value'])
         self.stop_events_table.setModel(self.stop_events_model)
         self.stop_events_table.resizeColumnsToContents()
-        self.stop_events_table.horizontalHeader().setResizeMode(0, QtGui.QHeaderView.Stretch)
-        self.stop_events_table.horizontalHeader().setResizeMode(1, QtGui.QHeaderView.Stretch)
+        for c in [0, 1, 3]:
+            self.stop_events_table.resizeColumnToContents(c)
+            self.stop_events_table.horizontalHeader().setResizeMode(c, QtGui.QHeaderView.Fixed)
+        self.stop_events_table.horizontalHeader().setResizeMode(2, QtGui.QHeaderView.Stretch)
         self.stop_events_table.verticalHeader().setResizeMode(QtGui.QHeaderView.ResizeToContents)
         self.stop_events_table.setItemDelegateForColumn(0, self.EventTypeDelegate(self))
         self.stop_events_table.setItemDelegateForColumn(1, self.ValueDelegate(self, True))
