@@ -357,13 +357,16 @@ class SettingsDialog(QtGui.QDialog):
                 ev_type = model.itemFromIndex(model.index(self.index.row(), 0)).data(EventRole).toPyObject()
                 if ev_type == SYSEX:
                     return SysExEditor(parent, index.data(SysExRole).toPyObject())
-                combo = QtGui.QComboBox(parent)
-                if ev_type == CTRL:
-                    combo.addItems(['{} - {}'.format(id, Controllers[id]) for id in sorted(Controllers.keys())])
-                elif ev_type in [NOTEON, NOTEOFF]:
-                    combo.addItems(['{} - {}'.format(id, NoteNames[id].title()) for id in sorted(NoteNames.keys())])
+#                combo = QtGui.QComboBox(parent)
+#                if ev_type == CTRL:
+#                    combo.addItems(['{} - {}'.format(id, Controllers[id]) for id in sorted(Controllers.keys())])
+#                elif ev_type in [NOTEON, NOTEOFF]:
+#                    combo.addItems(['{} - {}'.format(id, NoteNames[id].title()) for id in sorted(NoteNames.keys())])
+                combo = ParamCombo(parent)
+                combo.setModelColumn(0 if ev_type==CTRL else 1)
                 combo.setCurrentIndex(index.data(EventIdRole).toPyObject())
-                combo.activated.connect(lambda i: parent.setFocus())
+                combo.setMinimumWidth(option.rect.width())
+#                combo.activated.connect(lambda i: parent.setFocus())
                 return combo
             spin = QtGui.QSpinBox(parent)
             spin.wheelEvent = lambda event: spin.stepBy(-spin.singleStep() if event.delta() > 0 else spin.singleStep())
@@ -381,17 +384,25 @@ class SettingsDialog(QtGui.QDialog):
             return spin
 
         def set_data(self, widget, hint):
-            if isinstance(widget, QtGui.QComboBox):
-                self.index.model().itemFromIndex(self.index).setData(widget.currentIndex(), IdRole)
+            item = self.index.model().itemFromIndex(self.index)
+            if isinstance(widget, QtGui.QComboBox) or isinstance(widget, ParamCombo):
+                found = widget.model().findItems(widget.currentText(), QtCore.Qt.MatchFixedString, widget.modelColumn())+widget.name_model.findItems(widget.currentText(), QtCore.Qt.MatchFixedString, widget.modelColumn())
+                if found:
+                    id = found[0].row()
+                    text = widget.model().item(id, widget.modelColumn()).text()
+                else:
+                    id = widget.currentIndex()
+                    text = widget.model().item(widget.currentIndex(), widget.modelColumn()).text()
+                item.setData(id, IdRole)
+                item.setText(text)
             elif isinstance(widget, QtGui.QSpinBox):
                 if self.index.column() == 1:
-                    self.index.model().itemFromIndex(self.index).setData(widget.value()-1, IdRole)
+                    item.setData(widget.value()-1, IdRole)
                     if widget.value() == 0:
-                        self.index.model().itemFromIndex(self.index).setText('All')
+                        item.setText('All')
                 else:
-                    self.index.model().itemFromIndex(self.index).setData(widget.value(), IdRole)
+                    item.setData(widget.value(), IdRole)
             else:
-                item = self.index.model().itemFromIndex(self.index)
                 item.setText(widget.valid)
                 item.setData(widget.sysex, SysExRole)
 
@@ -449,27 +460,36 @@ class SettingsDialog(QtGui.QDialog):
             self.ctrl_auto_connect_edit.setText(self.main.ctrl_auto_connect)
             self.ctrl_auto_connect_chk.setChecked(True)
         self.toggle_mode_chk.setChecked(self.main.toggle_mode)
+
         self.enable_combo.setCurrentIndex(self.main.ctrl_enable_event.event_type)
-        self.enable_param_spin.setValue(self.main.ctrl_enable_event.param)
+        self.enable_combo.currentIndexChanged.connect(self.enable_param_combo.setModelColumn)
+        self.enable_param_combo.setModelColumn(self.main.ctrl_enable_event.event_type)
+        self.enable_param_combo.setCurrentIndex(self.main.ctrl_enable_event.param)
         self.enable_value_spin.setValue(self.main.ctrl_enable_event.value)
         self.enable_chan_spin.setValue(self.main.ctrl_enable_event.channel+1)
+
         self.disable_combo.setCurrentIndex(self.main.ctrl_enable_event.event_type)
-        self.disable_param_spin.setValue(self.main.ctrl_disable_event.param)
+        self.disable_combo.currentIndexChanged.connect(self.disable_param_combo.setModelColumn)
+        self.disable_param_combo.setModelColumn(self.main.ctrl_enable_event.event_type)
+        self.disable_param_combo.setCurrentIndex(self.main.ctrl_disable_event.param)
         self.disable_value_spin.setValue(self.main.ctrl_disable_event.value)
         self.disable_chan_spin.setValue(self.main.ctrl_disable_event.channel+1)
+
         self.stop_combo.setCurrentIndex(self.main.ctrl_stop_event.event_type)
-        self.stop_param_spin.setValue(self.main.ctrl_stop_event.param)
+        self.stop_combo.currentIndexChanged.connect(self.stop_param_combo.setModelColumn)
+        self.stop_param_combo.setModelColumn(self.main.ctrl_stop_event.event_type)
+        self.stop_param_combo.setCurrentIndex(self.main.ctrl_stop_event.param)
         self.stop_value_spin.setValue(self.main.ctrl_stop_event.value)
         self.stop_chan_spin.setValue(self.main.ctrl_stop_event.channel+1)
         self.toggle_mode_chk.toggled.connect(lambda state: [
                                                        self.disable_combo.setEnabled(not state), 
-                                                       self.disable_param_spin.setEnabled(not state), 
+                                                       self.disable_param_combo.setEnabled(not state), 
                                                        self.disable_value_spin.setEnabled(not state), 
                                                        self.disable_chan_spin.setEnabled(not state), 
                                                        self.toggle_pairing(force=state), 
                                                        ])
         self.enable_combo.currentIndexChanged.connect(self.toggle_pairing)
-        self.enable_param_spin.valueChanged.connect(self.toggle_pairing)
+        self.enable_param_combo.currentIndexChanged.connect(self.toggle_pairing)
         self.enable_value_spin.valueChanged.connect(self.toggle_pairing)
         self.enable_chan_spin.valueChanged.connect(self.toggle_pairing)
         self.toggle_mode_chk.toggled.emit(self.toggle_mode_chk.isChecked())
@@ -479,8 +499,7 @@ class SettingsDialog(QtGui.QDialog):
         self.stop_events_table.setModel(self.stop_events_model)
         self.stop_events_table.resizeColumnsToContents()
         self.stop_events_table.horizontalHeader().setResizeMode(0, QtGui.QHeaderView.Stretch)
-        self.stop_events_table.resizeColumnToContents(1)
-        self.stop_events_table.horizontalHeader().setResizeMode(2, QtGui.QHeaderView.Stretch)
+        self.stop_events_table.horizontalHeader().setResizeMode(1, QtGui.QHeaderView.Stretch)
         self.stop_events_table.verticalHeader().setResizeMode(QtGui.QHeaderView.ResizeToContents)
         self.stop_events_table.setItemDelegateForColumn(0, self.EventTypeDelegate(self))
         self.stop_events_table.setItemDelegateForColumn(1, self.ValueDelegate(self, True))
@@ -529,11 +548,12 @@ class SettingsDialog(QtGui.QDialog):
                 model.appendRow([ev_item, chan_item, data1_item, data2_item])
             setattr(self, 'fb_{}_model'.format(action), model)
             table.setModel(model)
-            table.resizeColumnsToContents()
-            table.horizontalHeader().setResizeMode(0, QtGui.QHeaderView.Stretch)
-            table.resizeColumnToContents(1)
-            table.horizontalHeader().setResizeMode(2, QtGui.QHeaderView.Stretch)
+#            table.resizeColumnsToContents()
             table.verticalHeader().setResizeMode(QtGui.QHeaderView.ResizeToContents)
+            for c in [0, 1, 3]:
+                table.resizeColumnToContents(c)
+                table.horizontalHeader().setResizeMode(c, QtGui.QHeaderView.Fixed)
+            table.horizontalHeader().setResizeMode(2, QtGui.QHeaderView.Stretch)
             table.setItemDelegateForColumn(0, self.EventTypeDelegate(self))
             table.setItemDelegateForColumn(1, self.ValueDelegate(self))
             table.setItemDelegateForColumn(2, self.ValueDelegate(self))
@@ -556,9 +576,9 @@ class SettingsDialog(QtGui.QDialog):
                 for c in range(16):
                     ctrl_list.append((event.event_type, event.param, event.value, c))
         ctrl_list = []
-        ctrl_enable_event = RemoteCtrlEvent(self.enable_combo.currentIndex(), self.enable_param_spin.value(), self.enable_value_spin.value(), self.enable_chan_spin.value())
-        ctrl_disable_event = RemoteCtrlEvent(self.disable_combo.currentIndex(), self.disable_param_spin.value(), self.disable_value_spin.value(), self.disable_chan_spin.value())
-        ctrl_stop_event = RemoteCtrlEvent(self.stop_combo.currentIndex(), self.stop_param_spin.value(), self.stop_value_spin.value(), self.stop_chan_spin.value())
+        ctrl_enable_event = RemoteCtrlEvent(self.enable_combo.currentIndex(), self.enable_param_combo.currentIndex(), self.enable_value_spin.value(), self.enable_chan_spin.value())
+        ctrl_disable_event = RemoteCtrlEvent(self.disable_combo.currentIndex(), self.disable_param_combo.currentIndex(), self.disable_value_spin.value(), self.disable_chan_spin.value())
+        ctrl_stop_event = RemoteCtrlEvent(self.stop_combo.currentIndex(), self.stop_param_combo.currentIndex(), self.stop_value_spin.value(), self.stop_chan_spin.value())
         append_tuple(ctrl_enable_event)
         append_tuple(ctrl_stop_event)
         if not self.toggle_mode_chk.isChecked(): append_tuple(ctrl_disable_event)
@@ -615,15 +635,16 @@ class SettingsDialog(QtGui.QDialog):
         self.ctrl_auto_connect_chk.setChecked(False)
         self.toggle_mode_chk.setChecked(defaults['toggle_mode'])
         conv_dict = {
-                     'ctrl_enable_event': (self.enable_combo, self.enable_param_spin, self.enable_value_spin), 
-                     'ctrl_disable_event': (self.disable_combo, self.disable_param_spin, self.disable_value_spin), 
-                     'ctrl_stop_event': (self.stop_combo, self.stop_param_spin, self.stop_value_spin), 
+                     'ctrl_enable_event': (self.enable_combo, self.enable_param_combo, self.enable_value_spin, self.enable_chan_spin), 
+                     'ctrl_disable_event': (self.disable_combo, self.disable_param_combo, self.disable_value_spin, self.disable_chan_spin), 
+                     'ctrl_stop_event': (self.stop_combo, self.stop_param_combo, self.stop_value_spin, self.stop_chan_spin), 
                      }
-        for d, (combo, param, value) in conv_dict.items():
+        for d, (evcombo, param, value, chan) in conv_dict.items():
             t, p, v = defaults[d]
-            combo.setCurrentIndex(t)
-            param.setValue(p)
+            evcombo.setCurrentIndex(t)
+            param.setCurrentIndex(p)
             value.setValue(v)
+            chan.setValue(0)
 
         self.fb_auto_connect_chk.setChecked(False)
         self.fb_auto_connect_edit.setText('')
@@ -683,7 +704,7 @@ class SettingsDialog(QtGui.QDialog):
     def toggle_pairing(self, value=None, force=False):
         if not force and not self.toggle_mode_chk.isChecked(): return
         self.disable_combo.setCurrentIndex(self.enable_combo.currentIndex())
-        self.disable_param_spin.setValue(self.enable_param_spin.value())
+        self.disable_param_combo.setCurrentIndex(self.enable_param_combo.currentIndex())
         self.disable_value_spin.setValue(self.enable_value_spin.value())
         self.disable_chan_spin.setValue(self.enable_chan_spin.value())
 
@@ -795,6 +816,12 @@ class SettingsDialog(QtGui.QDialog):
         current = table.currentIndex()
         if current.row() < 0: return
         table.model().takeRow(current.row())
+
+    def resizeEvent(self, resize):
+        self.blacklist_lbl.setMinimumHeight(0)
+        self.blacklist_lbl.setMinimumHeight(self.blacklist_lbl.heightForWidth(self.blacklist_lbl.width()))
+        self.whitelist_lbl.setMinimumHeight(0)
+        self.whitelist_lbl.setMinimumHeight(self.whitelist_lbl.heightForWidth(self.whitelist_lbl.width()))
 
 
 class Looper(QtCore.QObject):
@@ -1296,11 +1323,11 @@ class Looper(QtCore.QObject):
         self.settings.setValue('ctrl_auto_connect', self.ctrl_auto_connect)
         self.toggle_mode = dialog.toggle_mode_chk.isChecked()
         self.settings.setValue('toggle_mode', self.toggle_mode)
-        self.ctrl_enable_event = RemoteCtrlEvent(dialog.enable_combo.currentIndex(), dialog.enable_param_spin.value(), dialog.enable_value_spin.value(), dialog.enable_chan_spin.value()-1)
+        self.ctrl_enable_event = RemoteCtrlEvent(dialog.enable_combo.currentIndex(), dialog.enable_param_combo.currentIndex(), dialog.enable_value_spin.value(), dialog.enable_chan_spin.value()-1)
         self.settings.setValue('ctrl_enable_event', self.ctrl_enable_event)
-        self.ctrl_disable_event = RemoteCtrlEvent(dialog.disable_combo.currentIndex(), dialog.disable_param_spin.value(), dialog.disable_value_spin.value(), dialog.disable_chan_spin.value()-1)
+        self.ctrl_disable_event = RemoteCtrlEvent(dialog.disable_combo.currentIndex(), dialog.disable_param_combo.currentIndex(), dialog.disable_value_spin.value(), dialog.disable_chan_spin.value()-1)
         self.settings.setValue('ctrl_disable_event', self.ctrl_disable_event)
-        self.ctrl_stop_event = RemoteCtrlEvent(dialog.stop_combo.currentIndex(), dialog.stop_param_spin.value(), dialog.stop_value_spin.value(), dialog.stop_chan_spin.value()-1)
+        self.ctrl_stop_event = RemoteCtrlEvent(dialog.stop_combo.currentIndex(), dialog.stop_param_combo.currentIndex(), dialog.stop_value_spin.value(), dialog.stop_chan_spin.value()-1)
         self.settings.setValue('ctrl_stop_event', self.ctrl_stop_event)
         self.create_ctrl_events()
 

@@ -259,6 +259,18 @@ def get_note_name(id):
     return _note_names[id%12]
 NoteNames = {id:'{}{}'.format(_note_names[id%12], id//12) for id in range(128)}
 
+_sharps = {'c': 'd', 'd': 'e', 'f': 'g', 'g': 'a', 'a': 'b'}
+_en = {'c': ('b#', -1), 'e': ('fb', 0), 'f': ('e#', 0), 'b': ('cb', 1)}
+NoteIds = {'c0': 0}
+for i, n in NoteNames.items():                        
+    NoteIds[n] = i
+    if n[1] == '#':
+        NoteIds['{}b{}'.format(_sharps[n[0]],n[2:])] = i
+    elif n[0] in _en:
+        en = _en[n[0]]
+        NoteIds['{}{}'.format(en[0],str(int(n[1:])+en[1]))] = i
+
+
 WhiteKeys = []
 BlackKeys = []
 for n in range(128):

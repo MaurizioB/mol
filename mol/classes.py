@@ -10,7 +10,7 @@ MidiSource = namedtuple('MidiSource', 'client port')
 PatternData = namedtuple('PatternData', 'time vel source')
 RemoteCtrlEvent = namedtuple('RemoteCtrlEvent', 'event_type param value channel')
 #accept CtrlEvent with only event_type and param too
-RemoteCtrlEvent.__new__.__defaults__ = (None, None)
+RemoteCtrlEvent.__new__.__defaults__ = (None, -1)
 
 EventRole = QtCore.Qt.UserRole + 1
 EventIdRole = EventRole + 1
@@ -41,6 +41,91 @@ class deque2(deque):
         return deque.__new__(cls, *args)
     def __getslice__(self, start, end):
         return list(islice(self, start, end))
+
+class ParamCombo(QtGui.QComboBox):
+    def __init__(self, parent=None):
+        QtGui.QComboBox.__init__(self, parent)
+        self.setEditable(True)
+        self.setInsertPolicy(QtGui.QComboBox.NoInsert)
+        self.setMaximumWidth(100)
+        self.p_model = QtGui.QStandardItemModel()
+        self.name_model = QtGui.QStandardItemModel()
+        self.setModel(self.p_model)
+
+        metrics = QtGui.QFontMetrics(self.view().font())
+        ctrl_width = []
+        note_width = []
+        for i in range(128):
+            ctrl = Controllers[i]
+            ctrl_str = '{} - {}'.format(i, ctrl)
+            ctrl_item = QtGui.QStandardItem(ctrl_str)
+            ctrl_item.setData(i, IdRole)
+            ctrl_item.setData(ctrl, NameRole)
+            ctrl_width.append(metrics.width(ctrl_str))
+            ctrl_name_item = QtGui.QStandardItem(ctrl)
+            ctrl_name_item.setData(i, IdRole)
+            note = NoteNames[i].title()
+            note_str = '{} - {}'.format(i, note)
+            note_item = QtGui.QStandardItem(note_str)
+            note_item.setData(i, IdRole)
+            note_item.setData(note, NameRole)
+            note_width.append(metrics.width(note_str))
+            note_name_item = QtGui.QStandardItem(note)
+            note_name_item.setData(i, IdRole)
+            self.p_model.appendRow([ctrl_item, note_item])
+            self.name_model.appendRow([ctrl_name_item, note_name_item])
+
+        self.ctrl_width = max(ctrl_width)
+        self.note_width = max(note_width)
+        self.ref_size = self.width()
+
+        self.activated.connect(lambda i: self.lineEdit().setCursorPosition(0))
+        self.currentIndexChanged.connect(lambda i: self.lineEdit().setCursorPosition(0))
+
+    def showEvent(self, event):
+        QtGui.QComboBox.showEvent(self, event)
+        completer_model = self.lineEdit().completer().model()
+        new_model = QtGui.QStandardItemModel(self)
+        for r in range(self.p_model.rowCount()):
+            new_model.appendRow([completer_model.item(r, 0).clone(), completer_model.item(r, 1).clone()])
+            new_model.appendRow([self.name_model.item(r, 0).clone(), self.name_model.item(r, 1).clone()])
+        self.lineEdit().completer().setModel(new_model)
+        self.lineEdit().completer().setCompletionMode(QtGui.QCompleter.PopupCompletion)
+        self.lineEdit().completer().activated['QModelIndex'].connect(self.completer_activated)
+        self.lineEdit().completer().highlighted['QModelIndex'].connect(self.completer_activated)
+        self.setModelColumn(self.modelColumn())
+
+    def completer_activated(self, index):
+        self.setCurrentIndex(index.data(IdRole).toPyObject())
+
+    def focusOutEvent(self, event):
+        QtGui.QComboBox.focusOutEvent(self, event)
+        text = str(self.lineEdit().text())
+        found = self.p_model.findItems(text, QtCore.Qt.MatchFixedString, self.modelColumn())
+        if found: return
+        text = text.strip()
+        if not text.isdigit():
+            found = self.name_model.findItems(text, QtCore.Qt.MatchFixedString, self.modelColumn())
+            if found:
+                self.setCurrentIndex(found[0].data(IdRole).toPyObject())
+            else:
+                self.lineEdit().setText(self.p_model.item(self.currentIndex(), self.modelColumn()).text())
+        elif not 0 <= int(text) <= 127:
+            self.lineEdit().setText(self.p_model.item(self.currentIndex(), self.modelColumn()).text())
+        else:
+            self.setCurrentIndex(int(text))
+        self.lineEdit().setCursorPosition(0)
+
+    def setModelColumn(self, col):
+        QtGui.QComboBox.setModelColumn(self, col if col <= 1 else 1)
+        if not self.isVisible(): return
+        if col == 0:
+            self.ref_size = self.ctrl_width if self.ctrl_width >= self.width() else self.width()
+        else:
+            self.ref_size = self.note_width if self.note_width >= self.width() else self.width()
+        self.view().setMinimumWidth(self.ref_size)
+        self.view().setMaximumWidth(self.ref_size)
+        self.lineEdit().completer().popup().setMinimumWidth(self.ref_size)
 
 class MidiData(QtCore.QObject):
     __slots__ = 'event', 'time', 'vel', 'source'

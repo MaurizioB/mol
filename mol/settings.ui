@@ -6,14 +6,17 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>562</width>
-    <height>713</height>
+    <width>532</width>
+    <height>736</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>MOL settings</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
+   <property name="sizeConstraint">
+    <enum>QLayout::SetMinimumSize</enum>
+   </property>
    <item row="3" column="0">
     <widget class="QDialogButtonBox" name="buttonBox">
      <property name="orientation">
@@ -337,9 +340,12 @@
              </widget>
             </item>
             <item row="0" column="0" colspan="2">
-             <widget class="QLabel" name="label_23">
+             <widget class="QLabel" name="blacklist_lbl">
               <property name="text">
                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Blacklist!&lt;/span&gt; Devices MOL will &lt;span style=&quot; font-weight:600;&quot;&gt;not&lt;/span&gt; try to connect to. This list has precedence on the &amp;quot;&lt;span style=&quot; font-style:italic;&quot;&gt;Custom ports&lt;/span&gt;&amp;quot; list.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+              </property>
+              <property name="alignment">
+               <set>Qt::AlignJustify|Qt::AlignVCenter</set>
               </property>
               <property name="wordWrap">
                <bool>true</bool>
@@ -351,8 +357,14 @@
               <property name="text">
                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Custom whitelist!&lt;/span&gt; Devices that MOL will try to connect to if &amp;quot;&lt;span style=&quot; font-style:italic;&quot;&gt;Custom ports&lt;/span&gt;&amp;quot; mode is selected.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
               </property>
+              <property name="alignment">
+               <set>Qt::AlignJustify|Qt::AlignVCenter</set>
+              </property>
               <property name="wordWrap">
                <bool>true</bool>
+              </property>
+              <property name="margin">
+               <number>1</number>
               </property>
              </widget>
             </item>
@@ -647,27 +659,8 @@ It is usually good enough to leave only Note On events, because Note Off events 
           <item row="4" column="0">
            <widget class="QLabel" name="label_3">
             <property name="text">
-             <string>Stop/disable event:</string>
+             <string>Disable (and stop) event:</string>
             </property>
-           </widget>
-          </item>
-          <item row="5" column="1">
-           <widget class="QComboBox" name="stop_combo">
-            <item>
-             <property name="text">
-              <string>CTRL parameter</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>Note ON</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>Note OFF</string>
-             </property>
-            </item>
            </widget>
           </item>
           <item row="5" column="0">
@@ -684,42 +677,14 @@ It is usually good enough to leave only Note On events, because Note Off events 
             </property>
            </widget>
           </item>
-          <item row="3" column="2">
-           <widget class="QSpinBox" name="enable_param_spin">
-            <property name="minimumSize">
-             <size>
-              <width>64</width>
-              <height>0</height>
-             </size>
+          <item row="2" column="0" colspan="7">
+           <widget class="QCheckBox" name="toggle_mode_chk">
+            <property name="toolTip">
+             <string>If enabled, uses the &quot;Enable&quot; event to toggle between enabled and disabled state. If a loop is currently playing, it will be stopped.</string>
             </property>
-            <property name="maximumSize">
-             <size>
-              <width>64</width>
-              <height>16777215</height>
-             </size>
+            <property name="text">
+             <string>Toggle mode</string>
             </property>
-            <property name="maximum">
-             <number>127</number>
-            </property>
-           </widget>
-          </item>
-          <item row="4" column="1">
-           <widget class="QComboBox" name="disable_combo">
-            <item>
-             <property name="text">
-              <string>CTRL parameter</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>Note ON</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>Note OFF</string>
-             </property>
-            </item>
            </widget>
           </item>
           <item row="5" column="3">
@@ -741,6 +706,34 @@ It is usually good enough to leave only Note On events, because Note Off events 
              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
             </property>
            </widget>
+          </item>
+          <item row="1" column="0" colspan="7">
+           <widget class="Line" name="line">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="0" colspan="7">
+           <layout class="QHBoxLayout" name="horizontalLayout_2">
+            <item>
+             <widget class="QCheckBox" name="ctrl_auto_connect_chk">
+              <property name="text">
+               <string>Auto connect</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QLineEdit" name="ctrl_auto_connect_edit">
+              <property name="enabled">
+               <bool>false</bool>
+              </property>
+              <property name="toolTip">
+               <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Type ports MOL will try to automatically connect to.&lt;br/&gt;The complete format is &lt;span style=&quot; font-weight:600;&quot;&gt;client&lt;/span&gt;:&lt;span style=&quot; font-weight:600;&quot;&gt;port&lt;/span&gt;, wheter as string or as numbers. For example:&lt;/p&gt;&lt;ul&gt;&lt;li&gt;USB MIDI interface:USB MIDI Port 1&lt;/li&gt;&lt;li&gt;20:0&lt;/li&gt;&lt;/ul&gt;&lt;p&gt;Pattern search works using regular expressions, the string &amp;quot;USB MIDI.*1&amp;quot; will connect to every port with client name beginning with &amp;quot;USB MIDI&amp;quot; and port name ending with &amp;quot;1&amp;quot;.&lt;/p&gt;&lt;p&gt;Multiple ports can be specified, separated by a comma.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
           </item>
           <item row="3" column="4">
            <widget class="QSpinBox" name="enable_value_spin">
@@ -794,25 +787,6 @@ It is usually good enough to leave only Note On events, because Note Off events 
             </property>
            </widget>
           </item>
-          <item row="5" column="2">
-           <widget class="QSpinBox" name="stop_param_spin">
-            <property name="minimumSize">
-             <size>
-              <width>64</width>
-              <height>0</height>
-             </size>
-            </property>
-            <property name="maximumSize">
-             <size>
-              <width>64</width>
-              <height>16777215</height>
-             </size>
-            </property>
-            <property name="maximum">
-             <number>127</number>
-            </property>
-           </widget>
-          </item>
           <item row="5" column="4">
            <widget class="QSpinBox" name="stop_value_spin">
             <property name="maximumSize">
@@ -832,11 +806,106 @@ It is usually good enough to leave only Note On events, because Note Off events 
             </property>
            </widget>
           </item>
+          <item row="4" column="6">
+           <widget class="QSpinBox" name="disable_chan_spin">
+            <property name="specialValueText">
+             <string>Any</string>
+            </property>
+            <property name="maximum">
+             <number>16</number>
+            </property>
+           </widget>
+          </item>
+          <item row="5" column="5">
+           <widget class="QLabel" name="label_22">
+            <property name="text">
+             <string>Channel:</string>
+            </property>
+           </widget>
+          </item>
+          <item row="4" column="5">
+           <widget class="QLabel" name="label_21">
+            <property name="text">
+             <string>Channel:</string>
+            </property>
+           </widget>
+          </item>
+          <item row="5" column="6">
+           <widget class="QSpinBox" name="stop_chan_spin">
+            <property name="specialValueText">
+             <string>Any</string>
+            </property>
+            <property name="maximum">
+             <number>16</number>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="6">
+           <widget class="QSpinBox" name="enable_chan_spin">
+            <property name="specialValueText">
+             <string>Any</string>
+            </property>
+            <property name="maximum">
+             <number>16</number>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="2">
+           <widget class="ParamCombo" name="enable_param_combo">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="editable">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="5" column="1">
+           <widget class="QComboBox" name="stop_combo">
+            <item>
+             <property name="text">
+              <string>CTRL</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>Note ON</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>Note OFF</string>
+             </property>
+            </item>
+           </widget>
+          </item>
           <item row="3" column="1">
            <widget class="QComboBox" name="enable_combo">
             <item>
              <property name="text">
-              <string>CTRL parameter</string>
+              <string>CTRL</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>Note ON</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>Note OFF</string>
+             </property>
+            </item>
+           </widget>
+          </item>
+          <item row="4" column="1">
+           <widget class="QComboBox" name="disable_combo">
+            <item>
+             <property name="text">
+              <string>CTRL</string>
              </property>
             </item>
             <item>
@@ -852,103 +921,28 @@ It is usually good enough to leave only Note On events, because Note Off events 
            </widget>
           </item>
           <item row="4" column="2">
-           <widget class="QSpinBox" name="disable_param_spin">
-            <property name="minimumSize">
-             <size>
-              <width>64</width>
-              <height>0</height>
-             </size>
+           <widget class="ParamCombo" name="disable_param_combo">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
             </property>
-            <property name="maximumSize">
-             <size>
-              <width>64</width>
-              <height>16777215</height>
-             </size>
-            </property>
-            <property name="maximum">
-             <number>127</number>
+            <property name="editable">
+             <bool>true</bool>
             </property>
            </widget>
           </item>
-          <item row="3" column="6">
-           <widget class="QSpinBox" name="enable_chan_spin">
-            <property name="specialValueText">
-             <string>Any</string>
+          <item row="5" column="2">
+           <widget class="ParamCombo" name="stop_param_combo">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
             </property>
-            <property name="maximum">
-             <number>16</number>
-            </property>
-           </widget>
-          </item>
-          <item row="2" column="0" colspan="7">
-           <widget class="QCheckBox" name="toggle_mode_chk">
-            <property name="toolTip">
-             <string>If enabled, uses the &quot;Enable&quot; event to toggle between enabled and disabled state. If a loop is currently playing, it will be stopped.</string>
-            </property>
-            <property name="text">
-             <string>Toggle mode</string>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="0" colspan="7">
-           <widget class="Line" name="line">
-            <property name="orientation">
-             <enum>Qt::Horizontal</enum>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="0" colspan="7">
-           <layout class="QHBoxLayout" name="horizontalLayout_2">
-            <item>
-             <widget class="QCheckBox" name="ctrl_auto_connect_chk">
-              <property name="text">
-               <string>Auto connect</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QLineEdit" name="ctrl_auto_connect_edit">
-              <property name="enabled">
-               <bool>false</bool>
-              </property>
-              <property name="toolTip">
-               <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Type ports MOL will try to automatically connect to.&lt;br/&gt;The complete format is &lt;span style=&quot; font-weight:600;&quot;&gt;client&lt;/span&gt;:&lt;span style=&quot; font-weight:600;&quot;&gt;port&lt;/span&gt;, wheter as string or as numbers. For example:&lt;/p&gt;&lt;ul&gt;&lt;li&gt;USB MIDI interface:USB MIDI Port 1&lt;/li&gt;&lt;li&gt;20:0&lt;/li&gt;&lt;/ul&gt;&lt;p&gt;Pattern search works using regular expressions, the string &amp;quot;USB MIDI.*1&amp;quot; will connect to every port with client name beginning with &amp;quot;USB MIDI&amp;quot; and port name ending with &amp;quot;1&amp;quot;.&lt;/p&gt;&lt;p&gt;Multiple ports can be specified, separated by a comma.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-              </property>
-             </widget>
-            </item>
-           </layout>
-          </item>
-          <item row="4" column="6">
-           <widget class="QSpinBox" name="disable_chan_spin">
-            <property name="specialValueText">
-             <string>Any</string>
-            </property>
-            <property name="maximum">
-             <number>16</number>
-            </property>
-           </widget>
-          </item>
-          <item row="5" column="6">
-           <widget class="QSpinBox" name="stop_chan_spin">
-            <property name="specialValueText">
-             <string>Any</string>
-            </property>
-            <property name="maximum">
-             <number>16</number>
-            </property>
-           </widget>
-          </item>
-          <item row="4" column="5">
-           <widget class="QLabel" name="label_21">
-            <property name="text">
-             <string>Channel:</string>
-            </property>
-           </widget>
-          </item>
-          <item row="5" column="5">
-           <widget class="QLabel" name="label_22">
-            <property name="text">
-             <string>Channel:</string>
+            <property name="editable">
+             <bool>true</bool>
             </property>
            </widget>
           </item>
@@ -961,6 +955,25 @@ It is usually good enough to leave only Note On events, because Note Off events 
           <string>Feedback</string>
          </property>
          <layout class="QGridLayout" name="gridLayout_9">
+          <item row="11" column="2">
+           <widget class="QPushButton" name="fb_stop_add_btn">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>20</width>
+              <height>20</height>
+             </size>
+            </property>
+            <property name="text">
+             <string>+</string>
+            </property>
+           </widget>
+          </item>
           <item row="8" column="0">
            <widget class="QPushButton" name="fb_disable_down_btn">
             <property name="sizePolicy">
@@ -984,6 +997,23 @@ It is usually good enough to leave only Note On events, because Note Off events 
            <widget class="Line" name="line_3">
             <property name="orientation">
              <enum>Qt::Horizontal</enum>
+            </property>
+           </widget>
+          </item>
+          <item row="7" column="1" rowspan="2">
+           <widget class="QTableView" name="fb_disable_table">
+            <property name="horizontalScrollMode">
+             <enum>QAbstractItemView::ScrollPerPixel</enum>
+            </property>
+            <attribute name="verticalHeaderVisible">
+             <bool>false</bool>
+            </attribute>
+           </widget>
+          </item>
+          <item row="2" column="0" colspan="2">
+           <widget class="QLabel" name="label_15">
+            <property name="text">
+             <string>Events that will be sent when enabling MOL</string>
             </property>
            </widget>
           </item>
@@ -1031,25 +1061,6 @@ It is usually good enough to leave only Note On events, because Note Off events 
             </property>
            </widget>
           </item>
-          <item row="11" column="2">
-           <widget class="QPushButton" name="fb_stop_add_btn">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="maximumSize">
-             <size>
-              <width>20</width>
-              <height>20</height>
-             </size>
-            </property>
-            <property name="text">
-             <string>+</string>
-            </property>
-           </widget>
-          </item>
           <item row="10" column="0" colspan="2">
            <widget class="QLabel" name="label_18">
             <property name="text">
@@ -1057,22 +1068,11 @@ It is usually good enough to leave only Note On events, because Note Off events 
             </property>
            </widget>
           </item>
-          <item row="7" column="1" rowspan="2">
-           <widget class="QTableView" name="fb_disable_table">
-            <attribute name="verticalHeaderVisible">
-             <bool>false</bool>
-            </attribute>
-           </widget>
-          </item>
-          <item row="2" column="0" colspan="2">
-           <widget class="QLabel" name="label_15">
-            <property name="text">
-             <string>Events that will be sent when enabling MOL</string>
-            </property>
-           </widget>
-          </item>
           <item row="15" column="1" rowspan="2">
            <widget class="QTableView" name="fb_play_table">
+            <property name="horizontalScrollMode">
+             <enum>QAbstractItemView::ScrollPerPixel</enum>
+            </property>
             <attribute name="verticalHeaderVisible">
              <bool>false</bool>
             </attribute>
@@ -1097,8 +1097,27 @@ It is usually good enough to leave only Note On events, because Note Off events 
             </property>
            </widget>
           </item>
+          <item row="13" column="0" colspan="3">
+           <spacer name="verticalSpacer_5">
+            <property name="orientation">
+             <enum>Qt::Vertical</enum>
+            </property>
+            <property name="sizeType">
+             <enum>QSizePolicy::Fixed</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>20</width>
+              <height>4</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
           <item row="3" column="1" rowspan="2">
            <widget class="QTableView" name="fb_enable_table">
+            <property name="horizontalScrollMode">
+             <enum>QAbstractItemView::ScrollPerPixel</enum>
+            </property>
             <attribute name="verticalHeaderVisible">
              <bool>false</bool>
             </attribute>
@@ -1121,13 +1140,6 @@ It is usually good enough to leave only Note On events, because Note Off events 
             <property name="text">
              <string>+</string>
             </property>
-           </widget>
-          </item>
-          <item row="11" column="1" rowspan="2">
-           <widget class="QTableView" name="fb_stop_table">
-            <attribute name="verticalHeaderVisible">
-             <bool>false</bool>
-            </attribute>
            </widget>
           </item>
           <item row="12" column="2">
@@ -1381,21 +1393,15 @@ It is usually good enough to leave only Note On events, because Note Off events 
             </property>
            </spacer>
           </item>
-          <item row="13" column="0" colspan="3">
-           <spacer name="verticalSpacer_5">
-            <property name="orientation">
-             <enum>Qt::Vertical</enum>
+          <item row="11" column="1" rowspan="2">
+           <widget class="QTableView" name="fb_stop_table">
+            <property name="horizontalScrollMode">
+             <enum>QAbstractItemView::ScrollPerPixel</enum>
             </property>
-            <property name="sizeType">
-             <enum>QSizePolicy::Fixed</enum>
-            </property>
-            <property name="sizeHint" stdset="0">
-             <size>
-              <width>20</width>
-              <height>4</height>
-             </size>
-            </property>
-           </spacer>
+            <attribute name="verticalHeaderVisible">
+             <bool>false</bool>
+            </attribute>
+           </widget>
           </item>
          </layout>
         </widget>
@@ -1406,21 +1412,81 @@ It is usually good enough to leave only Note On events, because Note Off events 
    </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>ParamCombo</class>
+   <extends>QComboBox</extends>
+   <header>mol.classes</header>
+  </customwidget>
+ </customwidgets>
  <tabstops>
   <tabstop>startup_chk</tabstop>
   <tabstop>last_event_limit_spin</tabstop>
   <tabstop>max_size_spin</tabstop>
+  <tabstop>ignore_doublenote_chk</tabstop>
+  <tabstop>auto_connect_hw_radio</tabstop>
+  <tabstop>auto_connect_sw_radio</tabstop>
+  <tabstop>auto_connect_all_radio</tabstop>
+  <tabstop>auto_connect_custom_radio</tabstop>
+  <tabstop>blacklist_list</tabstop>
+  <tabstop>blacklist_add_btn</tabstop>
+  <tabstop>blacklist_del_btn</tabstop>
+  <tabstop>auto_connect_list</tabstop>
+  <tabstop>auto_connect_add_btn</tabstop>
+  <tabstop>auto_connect_del_btn</tabstop>
+  <tabstop>time_threshold_spin</tabstop>
+  <tabstop>trigger_list</tabstop>
+  <tabstop>trigger_add_btn</tabstop>
+  <tabstop>trigger_del_btn</tabstop>
+  <tabstop>record_list</tabstop>
+  <tabstop>record_add_btn</tabstop>
+  <tabstop>record_del_btn</tabstop>
+  <tabstop>ignore_list</tabstop>
+  <tabstop>stop_notes_chk</tabstop>
+  <tabstop>stop_events_table</tabstop>
+  <tabstop>stop_events_up_btn</tabstop>
+  <tabstop>stop_events_down_btn</tabstop>
+  <tabstop>stop_events_add_btn</tabstop>
+  <tabstop>stop_events_del_btn</tabstop>
+  <tabstop>ctrl_auto_connect_chk</tabstop>
+  <tabstop>ctrl_auto_connect_edit</tabstop>
   <tabstop>toggle_mode_chk</tabstop>
   <tabstop>enable_combo</tabstop>
-  <tabstop>enable_param_spin</tabstop>
+  <tabstop>enable_param_combo</tabstop>
   <tabstop>enable_value_spin</tabstop>
+  <tabstop>enable_chan_spin</tabstop>
   <tabstop>disable_combo</tabstop>
-  <tabstop>disable_param_spin</tabstop>
+  <tabstop>disable_param_combo</tabstop>
   <tabstop>disable_value_spin</tabstop>
+  <tabstop>disable_chan_spin</tabstop>
   <tabstop>stop_combo</tabstop>
-  <tabstop>stop_param_spin</tabstop>
+  <tabstop>stop_param_combo</tabstop>
   <tabstop>stop_value_spin</tabstop>
+  <tabstop>stop_chan_spin</tabstop>
+  <tabstop>fb_auto_connect_chk</tabstop>
+  <tabstop>fb_auto_connect_edit</tabstop>
+  <tabstop>fb_enable_table</tabstop>
+  <tabstop>fb_enable_up_btn</tabstop>
+  <tabstop>fb_enable_down_btn</tabstop>
+  <tabstop>fb_enable_add_btn</tabstop>
+  <tabstop>fb_enable_del_btn</tabstop>
+  <tabstop>fb_disable_table</tabstop>
+  <tabstop>fb_disable_up_btn</tabstop>
+  <tabstop>fb_disable_down_btn</tabstop>
+  <tabstop>fb_disable_add_btn</tabstop>
+  <tabstop>fb_disable_del_btn</tabstop>
+  <tabstop>fb_stop_table</tabstop>
+  <tabstop>fb_stop_up_btn</tabstop>
+  <tabstop>fb_stop_down_btn</tabstop>
+  <tabstop>fb_stop_add_btn</tabstop>
+  <tabstop>fb_stop_del_btn</tabstop>
+  <tabstop>fb_play_table</tabstop>
+  <tabstop>fb_play_up_btn</tabstop>
+  <tabstop>fb_play_down_btn</tabstop>
+  <tabstop>fb_play_add_btn</tabstop>
+  <tabstop>fb_play_del_btn</tabstop>
   <tabstop>buttonBox</tabstop>
+  <tabstop>tabWidget</tabstop>
  </tabstops>
  <resources>
   <include location="icons.qrc"/>
@@ -1433,8 +1499,8 @@ It is usually good enough to leave only Note On events, because Note Off events 
    <slot>accept()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>248</x>
-     <y>254</y>
+     <x>252</x>
+     <y>734</y>
     </hint>
     <hint type="destinationlabel">
      <x>157</x>
@@ -1449,8 +1515,8 @@ It is usually good enough to leave only Note On events, because Note Off events 
    <slot>reject()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>316</x>
-     <y>260</y>
+     <x>320</x>
+     <y>734</y>
     </hint>
     <hint type="destinationlabel">
      <x>286</x>
