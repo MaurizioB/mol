@@ -8,7 +8,7 @@ from PyQt4 import QtCore, QtGui, uic
 import icons
 from classes import *
 from midiutils import *
-
+from ui_settings import Ui_SettingsDialogClass
 version = '0.5'
 clientname = 'MOL'
 
@@ -287,7 +287,7 @@ class SysExEditor(QtGui.QLineEdit):
         self.set_fg()
 
 
-class SettingsDialog(QtGui.QDialog):
+class SettingsDialog(QtGui.QDialog, Ui_SettingsDialogClass):
     class EventTypeDelegate(QtGui.QStyledItemDelegate):
         def __init__(self, parent=None):
             QtGui.QStyledItemDelegate.__init__(self, parent)
@@ -408,8 +408,9 @@ class SettingsDialog(QtGui.QDialog):
 
 
     def __init__(self, main):
-        QtGui.QDialog.__init__(self, parent=None)
-        _load_ui(self, 'settings.ui')
+        QtGui.QDialog.__init__(self)
+        self.setupUi(self)
+#        _load_ui(self, 'settings.ui')
         self.main = main
         self.settings = main.settings
         self.startup_chk.setChecked(self.settings.value('startup_enable', defaults['startup_enable']).toBool())

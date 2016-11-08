@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>Dialog</class>
- <widget class="QDialog" name="Dialog">
+ <class>SettingsDialogClass</class>
+ <widget class="QDialog" name="SettingsDialogClass">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -1495,7 +1495,7 @@ It is usually good enough to leave only Note On events, because Note Off events 
   <connection>
    <sender>buttonBox</sender>
    <signal>accepted()</signal>
-   <receiver>Dialog</receiver>
+   <receiver>SettingsDialogClass</receiver>
    <slot>accept()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -1511,7 +1511,7 @@ It is usually good enough to leave only Note On events, because Note Off events 
   <connection>
    <sender>buttonBox</sender>
    <signal>rejected()</signal>
-   <receiver>Dialog</receiver>
+   <receiver>SettingsDialogClass</receiver>
    <slot>reject()</slot>
    <hints>
     <hint type="sourcelabel">
