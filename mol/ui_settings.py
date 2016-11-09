@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'settings.ui'
 #
-# Created: Tue Nov  8 02:07:54 2016
+# Created: Wed Nov  9 23:27:07 2016
 #      by: PyQt4 UI code generator 4.11.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -796,4 +796,4 @@ class Ui_SettingsDialogClass(object):
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_2), _translate("SettingsDialogClass", "MIDI interaction", None))
 
 from mol.classes import ParamCombo
-import icons_rc
+import icons
