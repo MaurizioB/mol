@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>Dialog</class>
- <widget class="QDialog" name="Dialog">
+ <class>SettingsDialogClass</class>
+ <widget class="QDialog" name="SettingsDialogClass">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -90,6 +90,9 @@
           </item>
           <item row="0" column="0" colspan="3">
            <widget class="QCheckBox" name="stop_notes_chk">
+            <property name="toolTip">
+             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;With this option disabled, &lt;span style=&quot; font-weight:600;&quot;&gt;MOL&lt;/span&gt; will just stop the pattern when you stop the loop. If any note is still playing, it will not be stopped.&lt;/p&gt;&lt;p&gt;By enabling this, &lt;span style=&quot; font-weight:600;&quot;&gt;MOL&lt;/span&gt; will detect the notes it was playing, looking for those which might still be playing, and then it will stop them.&lt;br/&gt;The detection algorithm is not perfect, since Note Off are usually less precise than Note On events, expecially when using a keyboard.&lt;/p&gt;&lt;p&gt;Also, please note that if no note has been stopped in the loop, then no note will be stopped even with this option enabled.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+            </property>
             <property name="text">
              <string>Try to detect still playing notes and stop them</string>
             </property>
@@ -140,6 +143,9 @@
               <width>16777215</width>
               <height>80</height>
              </size>
+            </property>
+            <property name="toolTip">
+             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;These events will always be sent to the ports the original device is connected to.&lt;br/&gt;Usually these events are:&lt;/p&gt;&lt;p&gt;123 - All Notes Off (stops &lt;span style=&quot; font-weight:600;&quot;&gt;ALL&lt;/span&gt; notes, even those which were not in the loop pattern).&lt;/p&gt;&lt;p&gt;64 - Sustain pedal.&lt;/p&gt;&lt;p&gt;&lt;br/&gt;Both of them should have a value of 0.&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;Note that these events will be sent to &lt;span style=&quot; font-weight:600;&quot;&gt;ALL&lt;/span&gt; devices connected to the loop device sources.&lt;br/&gt;So, if you played the loop on 2 different instruments, they will be sent to all devices connected to those instruments.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
             </property>
             <attribute name="verticalHeaderVisible">
              <bool>false</bool>
@@ -388,8 +394,7 @@
              </size>
             </property>
             <property name="toolTip">
-             <string>These events will be used to trigger a loop.
-It is usually good enough to leave only Note On events, because Note Off events might occur in very different moment, and even overlap with new Note On events.</string>
+             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;These events will be used to trigger a loop.&lt;/p&gt;&lt;p&gt;It is usually good enough to leave only Note On events.&lt;/p&gt;&lt;p&gt;Note Off events might occur in very different moment, and even overlap with new Note On events.&lt;br/&gt;Other events (such as Controllers or Pitch Bend) are hardly played in the same manner, and this might lead to an undetected loop pattern.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
             </property>
             <property name="editTriggers">
              <set>QAbstractItemView::NoEditTriggers</set>
@@ -489,6 +494,9 @@ It is usually good enough to leave only Note On events, because Note Off events 
                 <height>16777215</height>
                </size>
               </property>
+              <property name="toolTip">
+               <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Every event will be checked for the time past its previous and its next, according to this threshold. Decreasing this value will require more precise playing when repeating a pattern, while increasing it might lead to unwanted repetitions if similar pattern are repeated with different time intervals.&lt;/p&gt;&lt;p&gt;Please note that this will still require that the order of played events remains the same.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+              </property>
               <property name="minimum">
                <number>50</number>
               </property>
@@ -566,6 +574,9 @@ It is usually good enough to leave only Note On events, because Note Off events 
               <height>16777215</height>
              </size>
             </property>
+            <property name="toolTip">
+             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;After this time has lapsed, any event played before will be forgotten and not be considered for loop detection.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+            </property>
             <property name="minimum">
              <number>2</number>
             </property>
@@ -619,6 +630,9 @@ It is usually good enough to leave only Note On events, because Note Off events 
           </item>
           <item row="3" column="0">
            <widget class="QCheckBox" name="ignore_doublenote_chk">
+            <property name="toolTip">
+             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Disabling this will cause a loop detection if a note is played for three times at the same time interval.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+            </property>
             <property name="text">
              <string>Ignore note repetition</string>
             </property>
@@ -1002,6 +1016,9 @@ It is usually good enough to leave only Note On events, because Note Off events 
           </item>
           <item row="7" column="1" rowspan="2">
            <widget class="QTableView" name="fb_disable_table">
+            <property name="toolTip">
+             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;These events will be sent to the devices connected to the Feedback port when MOL is disabled.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+            </property>
             <property name="horizontalScrollMode">
              <enum>QAbstractItemView::ScrollPerPixel</enum>
             </property>
@@ -1070,6 +1087,9 @@ It is usually good enough to leave only Note On events, because Note Off events 
           </item>
           <item row="15" column="1" rowspan="2">
            <widget class="QTableView" name="fb_play_table">
+            <property name="toolTip">
+             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;These events will be sent to the devices connected to the Feedback port when a loop has been detected and it starts playing.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+            </property>
             <property name="horizontalScrollMode">
              <enum>QAbstractItemView::ScrollPerPixel</enum>
             </property>
@@ -1115,6 +1135,9 @@ It is usually good enough to leave only Note On events, because Note Off events 
           </item>
           <item row="3" column="1" rowspan="2">
            <widget class="QTableView" name="fb_enable_table">
+            <property name="toolTip">
+             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;These events will be sent to the devices connected to the Feedback port when MOL is enabled.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+            </property>
             <property name="horizontalScrollMode">
              <enum>QAbstractItemView::ScrollPerPixel</enum>
             </property>
@@ -1395,6 +1418,9 @@ It is usually good enough to leave only Note On events, because Note Off events 
           </item>
           <item row="11" column="1" rowspan="2">
            <widget class="QTableView" name="fb_stop_table">
+            <property name="toolTip">
+             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;These events will be sent to the devices connected to the Feedback port when a playing loop is stopped.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+            </property>
             <property name="horizontalScrollMode">
              <enum>QAbstractItemView::ScrollPerPixel</enum>
             </property>
@@ -1495,12 +1521,12 @@ It is usually good enough to leave only Note On events, because Note Off events 
   <connection>
    <sender>buttonBox</sender>
    <signal>accepted()</signal>
-   <receiver>Dialog</receiver>
+   <receiver>SettingsDialogClass</receiver>
    <slot>accept()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>252</x>
-     <y>734</y>
+     <x>256</x>
+     <y>731</y>
     </hint>
     <hint type="destinationlabel">
      <x>157</x>
@@ -1511,12 +1537,12 @@ It is usually good enough to leave only Note On events, because Note Off events 
   <connection>
    <sender>buttonBox</sender>
    <signal>rejected()</signal>
-   <receiver>Dialog</receiver>
+   <receiver>SettingsDialogClass</receiver>
    <slot>reject()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>320</x>
-     <y>734</y>
+     <x>324</x>
+     <y>731</y>
     </hint>
     <hint type="destinationlabel">
      <x>286</x>

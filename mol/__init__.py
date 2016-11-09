@@ -806,13 +806,15 @@ class SettingsDialog(QtGui.QDialog):
             QtGui.QMessageBox.question(self, 'Too many events', 'Too many events to send, are you crazy???')
             return
         ev_type = event_model[0].clone()
-        chan = QtGui.QStandardItem('1')
-        chan.setData(0, IdRole)
+        chan_item = QtGui.QStandardItem('1')
+        chan_item.setData(0, IdRole)
+        chan_item.setTextAlignment(QtCore.Qt.AlignHCenter|QtCore.Qt.AlignCenter)
         param = QtGui.QStandardItem('{} - {}'.format(0, Controllers[0]))
         param.setData(0, IdRole)
-        value = QtGui.QStandardItem('0')
-        value.setData(0, IdRole)
-        table.model().appendRow([ev_type, chan, param, value])
+        data2_item = QtGui.QStandardItem('0')
+        data2_item.setData(0, IdRole)
+        data2_item.setTextAlignment(QtCore.Qt.AlignHCenter|QtCore.Qt.AlignCenter)
+        table.model().appendRow([ev_type, chan_item, param, data2_item])
 
     def fb_del(self, table):
         current = table.currentIndex()
@@ -1036,6 +1038,7 @@ class Looper(QtCore.QObject):
             self.stop_events_send(sources)
         self.clear_buffer()
         self.icon_set()
+        #NOTE: forse è al contrario!
         self.fb_send(self.fb_stop_events + self.fb_enable_events if state else self.fb_disable_events)
 
     def enable_toggle(self):
